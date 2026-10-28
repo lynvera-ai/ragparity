@@ -1,0 +1,12 @@
+case_id,question,expected_value,expected_unit,citation_checked,answer_useful,review_notes
+database-count,What is the upper limit on the number of databases in PostgreSQL 17.6?,4294950911,databases,,,
+relation-count,What is the upper limit on relations per database in PostgreSQL 17.6?,1431650303,relations,,,
+relation-size,What is the maximum relation size in TB in PostgreSQL 17.6 with the default 8192-byte block size?,32,TB,,,
+table-columns,"What is the upper limit on columns per table in PostgreSQL 17.6, subject to tuple-size limits?",1600,columns,,,
+result-columns,What is the upper limit on columns in a result set in PostgreSQL 17.6?,1664,columns,,,
+field-size,What is the maximum field size in GB in PostgreSQL 17.6?,1,GB,,,
+index-columns,"What is the default upper limit on columns per index in PostgreSQL 17.6, without recompiling?",32,columns,,,
+partition-keys,"What is the default upper limit on partition keys in PostgreSQL 17.6, without recompiling?",32,keys,,,
+identifier-length,"What is the default maximum identifier length in bytes in PostgreSQL 17.6, without recompiling?",63,bytes,,,
+function-arguments,"What is the default upper limit on function arguments in PostgreSQL 17.6, without recompiling?",100,arguments,,,
+query-parameters,What is the upper limit on query parameters in PostgreSQL 17.6?,65535,parameters,,,

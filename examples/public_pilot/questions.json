@@ -1,0 +1,13 @@
+[
+  {"id":"database-count","item":"number of databases","question":"What is the upper limit on the number of databases in PostgreSQL 17.6?","value":"4294950911","unit":"databases"},
+  {"id":"relation-count","item":"relations per database","question":"What is the upper limit on relations per database in PostgreSQL 17.6?","value":"1431650303","unit":"relations"},
+  {"id":"relation-size","item":"relation size","question":"What is the maximum relation size in TB in PostgreSQL 17.6 with the default 8192-byte block size?","value":"32","unit":"TB"},
+  {"id":"table-columns","item":"columns per table","question":"What is the upper limit on columns per table in PostgreSQL 17.6, subject to tuple-size limits?","value":"1600","unit":"columns"},
+  {"id":"result-columns","item":"columns in a result set","question":"What is the upper limit on columns in a result set in PostgreSQL 17.6?","value":"1664","unit":"columns"},
+  {"id":"field-size","item":"field size","question":"What is the maximum field size in GB in PostgreSQL 17.6?","value":"1","unit":"GB"},
+  {"id":"index-columns","item":"columns per index","question":"What is the default upper limit on columns per index in PostgreSQL 17.6, without recompiling?","value":"32","unit":"columns"},
+  {"id":"partition-keys","item":"partition keys","question":"What is the default upper limit on partition keys in PostgreSQL 17.6, without recompiling?","value":"32","unit":"keys"},
+  {"id":"identifier-length","item":"identifier length","question":"What is the default maximum identifier length in bytes in PostgreSQL 17.6, without recompiling?","value":"63","unit":"bytes"},
+  {"id":"function-arguments","item":"function arguments","question":"What is the default upper limit on function arguments in PostgreSQL 17.6, without recompiling?","value":"100","unit":"arguments"},
+  {"id":"query-parameters","item":"query parameters","question":"What is the upper limit on query parameters in PostgreSQL 17.6?","value":"65535","unit":"parameters"}
+]

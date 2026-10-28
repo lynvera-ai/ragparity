@@ -2,6 +2,9 @@
 
 ## 0.2.0b1
 
+- Add an isolated local pilot with pinned public PostgreSQL documentation, Open WebUI,
+  local inference, independent source metadata, read-only projections and a human review form.
+
 - Add completion manifests with scope, cutoff, row count and per-row snapshot checks.
 - Add native fragment manifests, missing and unexpected fragment checks, per-fragment
   hashes, duplicate fragment detection and mixed-version findings.

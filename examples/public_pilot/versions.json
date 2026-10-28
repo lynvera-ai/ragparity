@@ -1,0 +1,19 @@
+{
+  "ollama_version": "0.40.12",
+  "ollama_url": "https://github.com/ollama/ollama/releases/download/v0.40.12/ollama-darwin.tgz",
+  "ollama_sha256": "1d1b4c2cf40d2a239f9b08a77384830800a8542c744a55f47247f9baf85b55d2",
+  "webui_image": "ghcr.io/open-webui/open-webui:v0.12.4-slim@sha256:41812075aede8ada8497cb2b71c76412978633eee72775bb77796f593d03b677",
+  "postgres_image": "pgvector/pgvector:0.8.7-pg17@sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d",
+  "generation_model": "qwen3:0.6b",
+  "embedding_model": "nomic-embed-text:v1.5",
+  "corpus_revision": "7885b94dd81b98bbab9ed878680d156df7bf857f",
+  "corpus_release": "PostgreSQL 17.6",
+  "corpus_file_sha256": {
+    "limits.sgml": "f1f192c48e3dd043b321baf138fda9990130947a84918e08b0b2f6ad27f86897",
+    "COPYRIGHT": "5ed3ce5c9373dff7f98b1fae7a6c7ccd98df7d734d46d24c1bcebf1240be8307"
+  },
+  "model_digests": {
+    "qwen3:0.6b": "7df6b6e09427a769808717c0a93cadc4ae99ed4eb8bf5ca557c90846becea435",
+    "nomic-embed-text:v1.5": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f"
+  }
+}

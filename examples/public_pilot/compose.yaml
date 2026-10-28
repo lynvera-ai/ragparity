@@ -1,0 +1,55 @@
+name: ragparity-public
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.7-pg17@sha256:ac08538c6f8b9904c33c8224c5e5706dbe760aca29db1d096972b4052c22a75d
+    network_mode: host
+    environment:
+      POSTGRES_USER: pilot_owner
+      POSTGRES_DB: pilot
+      POSTGRES_PASSWORD: ${PILOT_DB_PASSWORD:?Run the pilot setup first}
+    command: ["postgres", "-c", "listen_addresses=127.0.0.1", "-c", "shared_buffers=64MB", "-c", "max_connections=30"]
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/01-pilot.sql:ro
+    mem_limit: 320m
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pilot_owner -d pilot"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+  webui:
+    image: ghcr.io/open-webui/open-webui:v0.12.4-slim@sha256:41812075aede8ada8497cb2b71c76412978633eee72775bb77796f593d03b677
+    network_mode: host
+    environment:
+      HOST: 127.0.0.1
+      PORT: "8080"
+      WEBUI_SECRET_KEY: ${PILOT_WEBUI_SECRET:?Run the pilot setup first}
+      OLLAMA_BASE_URL: http://127.0.0.1:11445
+      RAG_OLLAMA_BASE_URL: http://127.0.0.1:11445
+      RAG_EMBEDDING_ENGINE: ollama
+      RAG_EMBEDDING_MODEL: nomic-embed-text:v1.5
+      RAG_EMBEDDING_BATCH_SIZE: "1"
+      VECTOR_DB: pgvector
+      PGVECTOR_DB_URL: postgresql://pilot_owner:${PILOT_DB_PASSWORD}@127.0.0.1:5432/pilot
+      PGVECTOR_CREATE_EXTENSION: "false"
+      PGVECTOR_INITIALIZE_MAX_VECTOR_LENGTH: "768"
+      CHUNK_SIZE: "4096"
+      CHUNK_OVERLAP: "0"
+      ENABLE_MARKDOWN_HEADER_TEXT_SPLITTER: "false"
+      RAG_TOP_K: "1"
+      RAG_RELEVANCE_THRESHOLD: "0"
+      ENABLE_WEB_SEARCH: "false"
+      ENABLE_PERSISTENT_CONFIG: "false"
+      ENABLE_SIGNUP: "false"
+      OFFLINE_MODE: "true"
+      SCARF_NO_ANALYTICS: "true"
+      DO_NOT_TRACK: "true"
+    mem_limit: 800m
+    volumes:
+      - webui-data:/app/backend/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+volumes:
+  postgres-data:
+  webui-data:

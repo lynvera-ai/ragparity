@@ -227,3 +227,6 @@ report.html
 .DS_Store
 .env.*
 !.env.example
+
+# Local public-document pilot runtime and downloaded data
+.local-pilot/
