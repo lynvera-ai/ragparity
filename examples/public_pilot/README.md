@@ -77,6 +77,7 @@ python3 -m venv .venv
 .venv/bin/python examples/public_pilot/manage.py install
 .venv/bin/python examples/public_pilot/manage.py ingest
 .venv/bin/python examples/public_pilot/manage.py audit
+.venv/bin/python examples/public_pilot/webui_install.py install
 ```
 
 The installer verifies the native runtime before extraction, starts the services, checks
@@ -87,12 +88,16 @@ silently duplicated. An incomplete upload requires inspection before retrying.
 
 Open **http://127.0.0.1:3188**. The account details are in `PILOT_HOME/login.txt`, which
 is private to the local user. Do not commit or share this file. Additional account signup
-is disabled. In a new chat select `qwen3:1.7b` and attach the `rpg-` documents from the
-uploaded files. Chat responses in the UI need human review; they are not automatically
-audited by a background extension.
+is disabled. New chats select **RAGParity · Public documents** after the integration is
+installed. Ask in English, name one subject and include the requested unit, for example:
+"What whole-surface mean temperature in degrees C is listed for Mars?" The mode uses the
+nineteen loaded documents automatically; do not attach additional files. It shows the
+extracted value, citation, excerpt and applicable source conditions, or a clear abstention.
+Missing or ambiguous units ask for clarification. It uses the same stateless subject,
+scope and evidence-selection rules as the CLI client.
 
-The new planetary uploads start with `rns-`. Attach these for planetary questions, or
-mix the two sets deliberately. The automatic harness retrieves its top three passages
+The planetary uploads start with `rns-`. Both the chat mode and automatic harness retrieve
+their top three passages
 from **all nineteen uploaded documents**, even when selecting only one question set.
 `--dataset` selects questions, not a narrower or oracle-selected retrieval scope.
 
@@ -188,9 +193,37 @@ and has no golden-answer arguments. It reports `ANSWERED`, `ABSTAINED`, `INCONCL
 `ERROR`, saving private evidence/code copies in `PILOT_HOME/queries/`. `ANSWERED` means
 extracted from retrieved evidence; it does not assert independent golden verification.
 
-The corrected runtime is an explicit client of Open WebUI retrieval and local generation.
-Ordinary UI chats still use the application's own attachment flow. Use `ask.py` to exercise
-the corrected flow; extending the guarantees to every UI chat needs a separate integration.
+The same `runtime.py`, `grounded.py` and HTTP transport now run in the native Open WebUI
+Pipe function as well as the host clients. The read-only deployment bundle contains no
+benchmark questions or golden answers, database passwords or saved account tokens. The
+function forwards the current signed-in user's session to loopback retrieval and selection
+requests and is restricted to the existing local pilot account. Blocking HTTP runs in a
+worker thread so calls back into the same application do not block its event loop. No
+additional server, listening port, model or Python package is installed for this integration.
+
+Only **RAGParity · Public documents** uses these rules. Other model choices retain the
+application's ordinary chat behavior. The native function uses the pinned image's existing
+Python/Pydantic environment; it does not install or change the toolkit's dependency contract.
+The adapter's shared runtime does not import the toolkit's benchmark/scoring code.
+
+To update the installed code, rerun `webui_install.py install`. It rebuilds the private,
+hashed bundle and recreates only this pilot's WebUI container, retaining chats and volumes.
+Separately edited function code is rejected rather than overwritten. Installation is
+idempotent; signup and loopback network restrictions remain in force.
+
+Each completed UI turn writes a private receipt inside the application's existing data
+volume, linked to the chat and assistant message. To export and score UI observations:
+
+```bash
+.venv/bin/python examples/public_pilot/webui_install.py collect
+.venv/bin/python examples/public_pilot/review_ui.py --observations /path/to/observations.json
+```
+
+Browser observations must record each reference question once, the visible response,
+selected mode, chat URL and visible citation links. `review_ui.py` sends no messages: it
+checks these observations against native receipts, deployed code hashes, pinned source
+links and independent reference values. An API-only run is not browser evidence. Receipts,
+observations, screenshots and `ui-report.json` stay in the private runtime directory.
 
 The initial version 1 run on October 28, 2026 on an 8 GiB Apple M2 produced:
 

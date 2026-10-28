@@ -2,6 +2,11 @@
 
 ## 0.2.0b1
 
+- Integrate the grounded document runtime into a native Open WebUI chat mode, with
+  per-session authentication, read-only code deployment and private per-turn receipts.
+- Add independent comparison of browser-visible answers, citations and native chat
+  receipts; keep benchmark references outside the deployed runtime bundle.
+
 - Ground public-pilot answers in atomic retrieved facts, with explicit scope abstention,
   bounded evidence selection, raw-decision logs and a benchmark-independent question client.
 - Pin the local evidence selector to `qwen3:1.7b` and refresh the application model catalog

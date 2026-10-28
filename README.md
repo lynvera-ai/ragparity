@@ -138,7 +138,8 @@ saved output. Numeric evidence can require a matching source reference and revis
 The [synthetic catalog pilot](examples/catalog/README.md) demonstrates six ingestion and
 answer scenarios without model APIs. The [local public-document pilot](examples/public_pilot/README.md)
 installs Open WebUI, local models and pgvector with pinned PostgreSQL and planetary documentation,
-real retrieval and structured answer observations. [Scale measurements](docs/performance.md) document
+real retrieval, a grounded native chat mode and independently scored browser observations.
+[Scale measurements](docs/performance.md) document
 measured resources and their limits. Report consumers should review the
 [migration notes](docs/releases.md#migrating-from-01) before upgrading from 0.1.
 

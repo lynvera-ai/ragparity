@@ -211,3 +211,63 @@ Before 1.0, independently review normal usage, conditions and conservative rejec
 rules, exercise another representative application and run longer operational trials.
 This small repeated English-language pilot does not establish universal question-answering
 accuracy, voluntary model abstention, multilingual coverage or guarantees for ordinary UI chats.
+
+### Native Open WebUI chat integration
+
+The corrected runtime is now installed as the native **RAGParity · Public documents**
+Pipe function in the existing local Open WebUI instance. New chats select this mode by
+default. It retrieves across the same nineteen public documents, forwards the current
+pilot user's session to loopback endpoints and applies the version 5 subject, unit,
+scope and bounded-selection rules. The interface shows the extracted value, source
+link, exact fact excerpt and source conditions, or a clear abstention. Missing or
+ambiguous units request clarification. Questions remain stateless and English-only.
+
+`runtime.py` and `transport.py` are shared by the native function and host clients.
+The read-only deployment bundle contains no benchmark question files, reference answers
+or private account credentials. The native function uses the pinned image's
+existing Python/Pydantic environment; it does not change the SDK dependency requirements.
+Blocking HTTP runs off the application event loop, avoiding deadlock when retrieval
+and selection call back into the same server. The function is restricted to the existing
+pilot account. No additional server, listening port, model or package was installed.
+
+Each completed turn writes a private receipt tied to its native chat and assistant
+message identifiers, including retrieved evidence, selection request/response, rendered
+answer, pinned versions and deployed code hashes. `review_ui.py` compares independently
+recorded browser-visible text and citation links with those receipts and the reference
+questions. It sends no chat requests and cannot create browser acceptance evidence by itself.
+
+All twenty-five reference questions were entered through the actual browser chat on
+October 28, 2026, in chat `508baaa0-d508-47f3-b482-af7c5f9034d5`. The final review found:
+
+| Browser observation | Result |
+| --- | --- |
+| Supported PostgreSQL questions | 11 / 11 PASS |
+| Supported planetary questions | 12 / 12 PASS |
+| Unsupported population and time-specific temperature questions | 2 / 2 policy abstentions |
+| Operational errors or invalid selections | 0 |
+| Actual model-selection calls | 23 |
+| Largest reported completion / configured cap | 6 / 24 tokens |
+| Visible answer, native receipt, pinned deployment and citation agreement | 25 / 25 |
+
+Mars mean temperature displayed **-65 °C**, with `mean-temperature` and `nasa-mars`;
+the separate Mars diameter answer displayed **6792 km**. The two unsupported questions
+made no model-selection request, so their abstentions are policy enforcement, not learned
+model behavior. No token-repeat abort or generation error occurred. Reloading the chat
+preserved both abstentions and the selected document mode. Metadata parity remained
+PASS for nineteen documents and nineteen fragments after integration.
+
+The private evidence is retained as `PILOT_HOME/ui-evidence/observations.json`, screenshots
+in the same directory, `PILOT_HOME/ui-receipts/*.json`, `PILOT_HOME/ui-install.json` and
+`PILOT_HOME/ui-report.json`. Exploratory chats and diagnostic captures remain separate
+from the final twenty-five-question acceptance observations. Runtime files and credentials
+are not committed. These engineering interface checks repeat a small frozen question set;
+they are not independent human acceptance or a general accuracy benchmark.
+
+The expanded automated suite passes **200 unit tests**, including same-server asynchronous
+execution, session/role boundaries, input clarification, credential-free receipts,
+deployment integrity and rejection of changed UI text, citations or message identifiers.
+Core package coverage is 95.79%. Formatting, lint and static typing checks pass.
+
+The integration applies only to **RAGParity · Public documents**. Other model selections
+retain their ordinary chat behavior. Independent human acceptance, broader document and
+application coverage, and longer operational trials remain necessary before 1.0.

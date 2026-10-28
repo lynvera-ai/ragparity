@@ -41,12 +41,14 @@ services:
       ENABLE_WEB_SEARCH: "false"
       ENABLE_PERSISTENT_CONFIG: "false"
       ENABLE_SIGNUP: "false"
+      DEFAULT_MODELS: ragparity_grounded
       OFFLINE_MODE: "true"
       SCARF_NO_ANALYTICS: "true"
       DO_NOT_TRACK: "true"
     mem_limit: 800m
     volumes:
       - webui-data:/app/backend/data
+      - ${PILOT_UI_BUNDLE:?Run the pilot manager first}:/app/ragparity:ro
     depends_on:
       postgres:
         condition: service_healthy

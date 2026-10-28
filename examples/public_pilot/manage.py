@@ -14,13 +14,12 @@ import time
 from contextlib import suppress
 from pathlib import Path
 from urllib.error import HTTPError, URLError
-from urllib.request import Request, urlopen
+from urllib.request import urlopen
 
 from corpus import HERE, ROOT, prepare
+from transport import APP_URL, MODEL_URL, request
 
 PROFILE = "ragparity-public"
-MODEL_URL = "http://127.0.0.1:11445"
-APP_URL = "http://127.0.0.1:3188"
 
 
 def private_write(path: Path, value: str) -> None:
@@ -29,19 +28,6 @@ def private_write(path: Path, value: str) -> None:
     with os.fdopen(descriptor, "w") as stream:
         os.fchmod(stream.fileno(), 0o600)
         stream.write(value)
-
-
-def request(url: str, data=None, *, token=None, method=None, timeout=180, headers=None):
-    fields = {"Content-Type": "application/json", **(headers or {})}
-    if token:
-        fields["Authorization"] = "Bearer " + token
-    body = (
-        data if isinstance(data, bytes) else json.dumps(data).encode() if data is not None else None
-    )
-    with urlopen(
-        Request(url, data=body, headers=fields, method=method), timeout=timeout
-    ) as response:
-        return json.load(response)
 
 
 def healthy(url: str) -> bool:
@@ -90,6 +76,7 @@ def docker_environment() -> dict:
     data = settings()
     config = ROOT / "docker"
     config.mkdir(exist_ok=True)
+    (ROOT / "ui-bundle").mkdir(exist_ok=True)
     private_write(config / "config.json", '{"auths":{}}\n')
     env = os.environ.copy()
     env.pop("DOCKER_CONTEXT", None)
@@ -98,6 +85,7 @@ def docker_environment() -> dict:
         DOCKER_CONFIG=str(config),
         PILOT_DB_PASSWORD=data["database_password"],
         PILOT_WEBUI_SECRET=data["webui_secret"],
+        PILOT_UI_BUNDLE=str(ROOT / "ui-bundle"),
     )
     return env
 

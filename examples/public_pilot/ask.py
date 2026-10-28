@@ -40,7 +40,7 @@ def main() -> None:
         "result": result,
         "code_sha256": {
             name: hashlib.sha256((HERE / name).read_bytes()).hexdigest()
-            for name in ("ask.py", "evaluate.py", "grounded.py")
+            for name in ("ask.py", "evaluate.py", "runtime.py", "transport.py", "grounded.py")
         },
     }
     path = ROOT / "queries" / query_id / "answer.json"
