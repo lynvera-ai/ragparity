@@ -43,3 +43,17 @@ The CLI accepts `[[claims]]` with `[claims.expected]` and `[claims.observed]` in
 same TOML configuration. See [claims.toml](../examples/basic/claims.toml). Metadata
 and claim statuses are combined conservatively. Call `validate_claim` directly for
 standalone numeric checks; there is no heuristic extraction from free-form text.
+
+
+## Evidence references
+
+Set `NumericClaim.require_provenance = True` to require `provenance` on both evidence
+objects. `EvidenceReference` contains a nonblank `reference_id`, a `revision`, and a
+timezone-aware `retrieved_at`. Reference ID and revision must match; missing or mismatched
+references are inconclusive. Retrieval timestamps may differ for the same immutable
+revision. The expected reference is included in unredacted findings.
+
+The application resolves these references against its trusted source. Matching reference
+strings do not authenticate evidence, execute a query, prove that a model used a source,
+or attest an entire answer. No URL is fetched and no arbitrary SQL is executed. Bind the
+observed numeric fields and reference to the actual application output before validation.

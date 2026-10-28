@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.2.0b1
+
+- Add completion manifests with scope, cutoff, row count and per-row snapshot checks.
+- Add native fragment manifests, missing and unexpected fragment checks, per-fragment
+  hashes, duplicate fragment detection and mixed-version findings.
+- Add synchronization grace windows using authoritative change timestamps.
+- Add cooperative cancellation, runtime and spool limits, database connection and query
+  timeouts, and sanitized configuration field diagnostics.
+- Add numeric evidence references, report redaction and atomic private report writes.
+- Version the result contract as 2.0 and enumerate stable finding codes; accept legacy
+  1.0 input and document migration and compatibility policies.
+- Add a synthetic catalog pipeline, PostgreSQL retrieval tests, scale tooling and measured
+  resource results, minimum-dependency CI and PostgreSQL 16/17/18 integration jobs.
+- Add manual artifact preparation and validation without package-index publication.
+
+Independent real-application pilots remain outstanding. This is a beta candidate.
+
 ## 0.1.0
 
 Initial experimental MVP:

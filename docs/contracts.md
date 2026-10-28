@@ -3,12 +3,14 @@
 ## Records
 
 `Record` accepts `source_id`, `document_id`, `source_version`, `content_hash`, `collection`,
-`is_deleted`, and optional timezone-aware `indexed_at`. Unknown fields are rejected.
+`is_deleted`, and optional timezone-aware `indexed_at`. It additionally accepts `updated_at`,
+`snapshot_id`, `chunk_id`, `chunk_hash` and `expected_chunks`. Unknown fields are rejected.
 Identifiers, versions, and hashes must be strings; missing, null, or whitespace-only
 strings represent absent evidence. `is_deleted` must be provided for a conclusive check.
 An empty collection name is not an implicit default collection.
 
-The identity is `(source_id, document_id, collection)`. Duplicate identities are failures,
+Source and default document-mode identity is `(source_id, document_id, collection)`.
+Chunk-mode indexes add `chunk_id`. Duplicate identities are failures,
 including duplicates in different batches. Ambiguous duplicate pairs are not compared.
 Index orphans still fail when duplicate indexed rows have no authoritative identity.
 
@@ -55,7 +57,7 @@ Missing metadata remains inconclusive even when a deletion policy accepts the st
 
 Findings contain severity (`INFO`, `WARNING`, `ERROR`), layer, available identifiers,
 structured evidence, and a recommendation. No original document body is accepted.
-Reports include schema version `1.0`, timestamp, input counts, comparison count,
+Reports emit schema version `2.0` (legacy `1.0` input is accepted), timestamp, input counts, comparison count,
 counts by code, capped finding details, and `findings_truncated`. Comparison count is
 the number of unique source identities evaluated after identity and duplicate safeguards;
 it includes deletion checks. Counts by code count findings, not unique documents.
@@ -87,3 +89,26 @@ The database roles need schema usage and SELECT on the configured table or view.
 Rows are streamed in one read-only repeatable-read transaction per adapter. The two
 systems must expose equivalent audit scope. The toolkit does not infer deletion from
 a filtered source or coordinate snapshots across different databases.
+
+
+## Audit and operational codes added in 0.2
+
+The `FindingCode` enum and [JSON schema](schemas/report.schema.json) enumerate all built-in
+codes. Their meanings are documented in [audit semantics](audits.md):
+
+- `SNAPSHOT_MISSING`, `SNAPSHOT_INCOMPLETE`, `SNAPSHOT_MISMATCH`,
+  `SNAPSHOT_COUNT_MISMATCH`, `SNAPSHOT_RECORD_MISMATCH`: inconclusive audit evidence.
+- `SYNC_PENDING`, `SYNC_EVIDENCE_MISSING`, `INVALID_TIMESTAMP`, `LAYOUT_MISMATCH`,
+  `CHUNK_MANIFEST_MISSING`: inconclusive timing, layout or fragment evidence.
+- `MISSING_CHUNK`, `UNEXPECTED_CHUNK`, `CHUNK_HASH_MISMATCH`, `MIXED_CHUNK_VERSIONS`:
+  failures unless deferred by the explicit synchronization grace policy.
+- `CHUNKS_SYNCED`: the complete declared fragment set and compared metadata agree.
+- `DATABASE_TIMEOUT`, `DATABASE_CONNECTION_ERROR`, `CHECK_CANCELLED`,
+  `TIME_LIMIT_EXCEEDED`: operational errors; the audit is incomplete.
+- `CLAIM_PROVENANCE_MISSING`, `CLAIM_PROVENANCE_MISMATCH`: inconclusive numeric
+  evidence when provenance is required.
+
+Reports also retain audit policy, the captured reference time and optional manifests,
+plus checker elapsed time and main-spool allocation. Redacted reports remove identifiers,
+evidence and manifests. Counts and status still refer to the complete audit, including
+findings omitted by the detail cap. See [release compatibility](releases.md).

@@ -1,0 +1,45 @@
+name: Prepare release
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Package version to validate and build
+        required: true
+        type: string
+permissions:
+  contents: read
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e '.[dev,postgres]' 'twine>=6,<7'
+      - name: Verify version and changelog
+        env:
+          RELEASE_VERSION: ${{ inputs.version }}
+        run: |
+          python - <<'PY'
+          import os
+          import tomllib
+          from pathlib import Path
+          from lynvera_ragparity import __version__
+          requested = os.environ['RELEASE_VERSION']
+          project = tomllib.loads(Path('pyproject.toml').read_text())
+          assert requested == __version__ == project['project']['version']
+          assert f'## {requested}' in Path('CHANGELOG.md').read_text()
+          PY
+      - run: ruff check src tests examples benchmarks
+      - run: mypy src
+      - run: pytest -m 'not integration' --cov=lynvera_ragparity --cov-fail-under=90
+      - run: python -m build
+      - run: python -m twine check dist/*
+      - run: sha256sum dist/*.whl dist/*.tar.gz > dist/SHA256SUMS
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: ragparity-${{ inputs.version }}
+          path: dist/
+          retention-days: 14

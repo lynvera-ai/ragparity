@@ -31,7 +31,9 @@ def test_mapped_sql_scan_selects_only_metadata(synchronized_record):
     )
     metadata.create_all(engine)
     with engine.begin() as connection:
-        row = synchronized_record.model_dump(exclude={"document_id", "indexed_at"})
+        row = synchronized_record.model_dump(
+            exclude={"document_id", "indexed_at"}, exclude_none=True
+        )
         connection.execute(
             table.insert(),
             [

@@ -5,8 +5,10 @@ and AI-generated answers expressed as structured numeric claims.
 
 **Trust your AI data. Verify every layer.**
 
-Version 0.1.0 is an experimental MVP. It checks explicit metadata and numeric contracts;
-it does not certify free-form answers or provide semantic fact-checking.
+Version 0.2.0b1 is a beta candidate with completed-snapshot checks, native fragment
+validation, execution controls and a reproducible catalog pilot. Independent application
+pilots remain outstanding. It checks explicit metadata and numeric contracts; it does
+not certify free-form answers or provide semantic fact-checking.
 
 ## Why RAGParity
 
@@ -17,13 +19,17 @@ behind each result. It fits alongside an existing RAG framework without replacin
 ## Implemented features
 
 - Missing and orphaned indexed documents, duplicate identities, version and hash mismatches.
-- Required metadata checks and configurable deletion policies.
+- Required metadata checks, configurable deletion policies, and synchronization grace windows.
+- Completion manifests checked against scope, cutoff, row counts and snapshot IDs.
+- Native chunk identity, expected fragment hashes and mixed-version detection.
 - Framework-independent readers, memory adapters, SQLAlchemy PostgreSQL reader, and a
   pgvector metadata reader that never selects embeddings.
 - Batched scans with a private SQLite disk spool and capped finding details.
 - Structured numeric comparisons with `Decimal`, explicit source, metric, unit, period,
   and absolute or relative tolerances.
-- TOML configuration, CLI exit codes, JSON results, and self-contained HTML reports.
+- TOML configuration with sanitized field diagnostics, CLI exit codes, versioned JSON
+  results, atomic private report writes, redaction, and self-contained HTML reports.
+- Query and connection timeouts, cooperative cancellation, total duration and spool limits.
 - Unit tests, PostgreSQL/pgvector integration fixtures, CI, and dependency audits.
 
 No model API, embedding generation, subscription, or paid service is required.
@@ -117,12 +123,22 @@ table = "index_metadata"
 schema_name = "public"
 ```
 
-Use `postgresql+psycopg://` URLs and SELECT-only roles. By default the database table
-must expose the seven `Record` fields with matching column names. An explicit
+Use `postgresql+psycopg://` URLs and SELECT-only roles. Defaults are a 10-second
+connection timeout and a 30-second database statement timeout. By default the database table
+must expose the original seven metadata columns with matching names. An explicit
 `[source.columns]` or `[index.columns]` mapping can map a subset of contract field names
 to physical column names; omitted fields become missing evidence. `indexed_at` is
 optional. See [configuration and result semantics](docs/contracts.md) and the
 [PostgreSQL/pgvector example](examples/postgresql_pgvector/README.md).
+
+New checks are opt-in for existing configurations. See [live ingestion and fragment audits](docs/audits.md).
+Use `ragparity check --redact --output report.json` to omit identifiers and evidence from
+saved output. Numeric evidence can require a matching source reference and revision.
+
+The [synthetic catalog pilot](examples/catalog/README.md) demonstrates six ingestion and
+answer scenarios without model APIs. [Scale measurements](docs/performance.md) document
+measured resources and their limits. Report consumers should review the
+[migration notes](docs/releases.md#migrating-from-01) before upgrading from 0.1.
 
 ## Architecture
 
@@ -151,7 +167,7 @@ python -m pip install -e '.[dev,postgres]'
 ruff check src tests examples
 ruff format --check src tests examples
 mypy src
-pytest -m 'not integration' --cov=lynvera_ragparity --cov-report=term-missing --cov-fail-under=85
+pytest -m 'not integration' --cov=lynvera_ragparity --cov-report=term-missing --cov-fail-under=90
 python -m build
 ```
 
@@ -160,20 +176,23 @@ Compose fixture and reader account as described in the database example, then ru
 `pytest -m integration`. No Docker is needed for unit tests.
 
 CI runs Python 3.12, 3.13, and 3.14, quality checks, coverage, package build and wheel
-installation, CLI smoke tests, and a separate Compose integration job. A free dependency
-audit and Dependabot configuration are included. There is no PyPI publishing workflow.
+installation, CLI smoke tests, minimum dependency compatibility, and Compose integration jobs for PostgreSQL 16, 17 and 18. A free dependency
+audit, Dependabot configuration and a manual release preparation workflow are included.
+There is no PyPI publishing workflow. See [release policy](docs/releases.md).
 
 ## Compatibility and limitations
 
 - PostgreSQL and pgvector are supported through relational metadata columns or views.
   JSON metadata must be exposed through a view; arbitrary framework schemas are not inferred.
-- Identity is `(source_id, document_id, collection)`, with one row per document per layer.
-  Chunked indexes need a document-level projection with explicitly defined aggregation.
+- Sources use `(source_id, document_id, collection)`. Document mode expects one index
+  row per document; chunk mode adds `chunk_id` and requires an authoritative fragment manifest.
 - Versions and hashes are opaque, exact strings. Hashes are compared, not recomputed.
   Equal metadata does not prove document body or embedding correctness.
-- `indexed_at` is retained when supplied, must include a timezone, and is not a freshness SLA.
+- `indexed_at` is retained when supplied and must include a timezone. Grace windows use
+  the authoritative source `updated_at`; indexed timestamps alone do not prove freshness.
 - Each database scan uses its own read-only repeatable-read snapshot. There is no atomic
-  snapshot across systems; pause ingestion or supply matching snapshots for reliable audits.
+  snapshot across systems; provide immutable projections and matching completion manifests
+  for coordinated audits. Caller-supplied attestations do not establish authenticity.
 - Temporary disk space scales with metadata size. Metadata is temporarily written to disk
   and deleted on normal cleanup; use an appropriately protected temporary filesystem.
 - Numeric evidence is supplied by the caller, who is responsible for its provenance.

@@ -56,6 +56,9 @@ def check(
     output: Annotated[
         Path | None, typer.Option("--output", "-o", help="Save a JSON report.")
     ] = None,
+    redact: Annotated[
+        bool, typer.Option("--redact", help="Remove identifiers and evidence from saved reports.")
+    ] = False,
 ) -> None:
     """Run checks. Exit: 0 pass, 1 inconsistency, 2 error, 3 inconclusive."""
     try:
@@ -65,12 +68,23 @@ def check(
             resources.callback(close_reader, source)
             index = create_reader(settings.index, index=True)
             resources.callback(close_reader, index)
-            result = ConsistencyChecker(settings.policy).check(source, index)
+            result = ConsistencyChecker(settings.policy).check(
+                source,
+                index,
+                source_snapshot=settings.source.snapshot,
+                index_snapshot=settings.index.snapshot,
+            )
             for claim in settings.claims:
                 result.add(validate_claim(claim), settings.policy.max_findings)
         if output is not None:
-            write_report(result, output, "json")
-    except (ConfigurationError, AdapterError, OSError):
+            write_report(result, output, "json", redact=redact or settings.report.redact)
+    except ConfigurationError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(2) from None
+    except KeyboardInterrupt:
+        typer.echo("Check cancelled.", err=True)
+        raise typer.Exit(130) from None
+    except (AdapterError, OSError):
         typer.echo(
             "Check could not complete; verify configuration, database and output access.", err=True
         )
@@ -91,11 +105,12 @@ def report(
     input: Annotated[Path, typer.Option("--input", "-i", help="JSON report from check.")],
     output: Annotated[Path, typer.Option("--output", "-o")],
     format: Annotated[ReportFormat, typer.Option("--format", "-f")] = ReportFormat.html,
+    redact: Annotated[bool, typer.Option("--redact")] = False,
 ) -> None:
     """Validate a saved JSON report and render JSON or self-contained HTML."""
     try:
         result = CheckReport.model_validate_json(input.read_text(encoding="utf-8"))
-        write_report(result, output, format.value)
+        write_report(result, output, format.value, redact=redact)
     except (OSError, ValueError, ValidationError):
         typer.echo("Cannot render report; check input JSON and output access.", err=True)
         raise typer.Exit(2) from None

@@ -10,18 +10,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python: ["3.12", "3.13", "3.14"]
+        include:
+          - {python: "3.12", dependencies: latest}
+          - {python: "3.13", dependencies: latest}
+          - {python: "3.14", dependencies: latest}
+          - {python: "3.12", dependencies: minimum}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
         with:
           python-version: ${{ matrix.python }}
       - run: python -m pip install --upgrade pip
-      - run: python -m pip install -e '.[dev,postgres]'
-      - run: ruff check src tests examples
-      - run: ruff format --check src tests examples
+      - if: matrix.dependencies != 'minimum'
+        run: python -m pip install -e '.[dev,postgres]'
+      - if: matrix.dependencies == 'minimum'
+        run: python -m pip install -e '.[dev,postgres]' -c constraints/minimum.txt
+      - run: ruff check src tests examples benchmarks
+      - run: ruff format --check src tests examples benchmarks
       - run: mypy src
-      - run: pytest -m 'not integration' --cov=lynvera_ragparity --cov-report=term-missing --cov-fail-under=85
+      - run: pytest -m 'not integration' --cov=lynvera_ragparity --cov-report=term-missing --cov-fail-under=90
       - run: python -m build
       - name: Install wheel and exercise CLI outside the checkout
         shell: bash
@@ -36,6 +43,12 @@ jobs:
           /tmp/ragparity-wheel/bin/ragparity report --input report.json --output report.html
   integration:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        postgres: ["16", "17", "18"]
+    env:
+      RAGPARITY_POSTGRES_MAJOR: ${{ matrix.postgres }}
     steps:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
       - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7

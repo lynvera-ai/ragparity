@@ -56,3 +56,47 @@ ALTER ROLE ragparity_reader SET default_transaction_read_only = on;
 GRANT CONNECT ON DATABASE ragparity TO ragparity_reader;
 GRANT USAGE ON SCHEMA public TO ragparity_reader;
 GRANT SELECT ON source_documents, indexed_documents TO ragparity_reader;
+
+CREATE TABLE catalog_source (
+    source_id text NOT NULL,
+    document_id text NOT NULL,
+    source_version text NOT NULL,
+    content_hash text NOT NULL,
+    collection text NOT NULL,
+    is_deleted boolean NOT NULL,
+    indexed_at timestamptz,
+    updated_at timestamptz NOT NULL,
+    snapshot_id text NOT NULL,
+    expected_chunks jsonb NOT NULL,
+    price numeric(12, 2) NOT NULL
+);
+CREATE TABLE catalog_index (
+    source_id text NOT NULL,
+    document_id text NOT NULL,
+    source_version text NOT NULL,
+    content_hash text NOT NULL,
+    collection text NOT NULL,
+    is_deleted boolean NOT NULL,
+    indexed_at timestamptz NOT NULL,
+    snapshot_id text NOT NULL,
+    chunk_id text NOT NULL,
+    chunk_hash text NOT NULL,
+    price numeric(12, 2) NOT NULL,
+    embedding vector(3) NOT NULL
+);
+INSERT INTO catalog_source VALUES (
+    'catalog', 'P100', '2', 'sha256:synthetic-document-v2', 'products', false, NULL,
+    '2026-01-01 00:00:00+00', 'catalog-2026-01-01',
+    '{"overview": "sha256:synthetic-overview", "price": "sha256:synthetic-price"}', 49.90
+);
+INSERT INTO catalog_index VALUES
+    ('catalog', 'P100', '2', 'sha256:synthetic-document-v2', 'products', false,
+     '2026-01-01 00:05:00+00', 'catalog-2026-01-01', 'overview', 'sha256:synthetic-overview',
+     49.90, '[0,1,0]'),
+    ('catalog', 'P100', '2', 'sha256:synthetic-document-v2', 'products', false,
+     '2026-01-01 00:05:00+00', 'catalog-2026-01-01', 'price', 'sha256:synthetic-price',
+     49.90, '[1,0,0]');
+-- A volatile predicate keeps the delay when only metadata columns are selected.
+CREATE VIEW slow_metadata AS SELECT source_documents.* FROM source_documents
+    WHERE pg_sleep(0.02) IS NULL;
+GRANT SELECT ON catalog_source, catalog_index, slow_metadata TO ragparity_reader;

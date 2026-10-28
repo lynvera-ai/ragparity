@@ -1,14 +1,22 @@
 from decimal import Context, Decimal, localcontext
 from typing import Annotated
 
-from pydantic import Field
+from pydantic import AwareDatetime, Field
 
-from lynvera_ragparity.core import Finding, Severity, Status
+from lynvera_ragparity.core import Finding, FindingCode, Severity, Status
 from lynvera_ragparity.core.models import Contract
 
 Number = Annotated[Decimal, Field(max_digits=50, decimal_places=20, allow_inf_nan=False)]
 Tolerance = Annotated[Number, Field(ge=0)]
 Label = Annotated[str, Field(min_length=1, pattern=r"\S")]
+
+
+class EvidenceReference(Contract):
+    """Caller-resolved evidence reference; no URI is fetched automatically."""
+
+    reference_id: Label
+    revision: Label
+    retrieved_at: AwareDatetime
 
 
 class NumericEvidence(Contract):
@@ -17,6 +25,7 @@ class NumericEvidence(Contract):
     period: Label | None = None
     source_id: Label | None = None
     metric: Label | None = None
+    provenance: EvidenceReference | None = None
 
 
 class NumericClaim(Contract):
@@ -25,6 +34,7 @@ class NumericClaim(Contract):
     observed: NumericEvidence | None = None
     absolute_tolerance: Tolerance = Decimal("0")
     relative_tolerance: Tolerance = Decimal("0")
+    require_provenance: bool = Field(default=False, strict=True)
 
 
 def validate_claim(claim: NumericClaim) -> Finding:
@@ -36,7 +46,7 @@ def validate_claim(claim: NumericClaim) -> Finding:
         missing = [
             f"{side}.{field}"
             for side, item in (("expected", expected), ("observed", observed))
-            for field in NumericEvidence.model_fields
+            for field in ("value", "unit", "period", "source_id", "metric")
             if getattr(item, field) is None
         ]
         mismatched = [
@@ -50,7 +60,27 @@ def validate_claim(claim: NumericClaim) -> Finding:
             code = "CLAIM_CONTEXT_MISMATCH"
             evidence["fields"] = mismatched
             recommendation = "Match source, metric, unit and period; no implicit conversions occur."
+        elif claim.require_provenance and (
+            expected.provenance is None or observed.provenance is None
+        ):
+            code = "CLAIM_PROVENANCE_MISSING"
+            recommendation = (
+                "Resolve both values against explicit authoritative evidence references."
+            )
+        elif (
+            claim.require_provenance
+            and expected.provenance is not None
+            and observed.provenance is not None
+            and (
+                (expected.provenance.reference_id, expected.provenance.revision)
+                != (observed.provenance.reference_id, observed.provenance.revision)
+            )
+        ):
+            code = "CLAIM_PROVENANCE_MISMATCH"
+            recommendation = "Use the same authoritative reference and revision for both values."
         else:
+            if expected.provenance is not None:
+                evidence["provenance"] = expected.provenance.model_dump(mode="json")
             assert expected.value is not None and observed.value is not None
             with localcontext(Context(prec=120)):
                 difference = abs(expected.value - observed.value)
@@ -75,7 +105,7 @@ def validate_claim(claim: NumericClaim) -> Finding:
                 else "Correct the claim using the authoritative value."
             )
     return Finding(
-        code=code,
+        code=FindingCode(code),
         status=status,
         severity=Severity.INFO
         if status == Status.PASS

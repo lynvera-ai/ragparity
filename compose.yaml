@@ -1,7 +1,7 @@
 name: ragparity
 services:
   postgres:
-    image: pgvector/pgvector:0.8.7-pg17
+    image: pgvector/pgvector:0.8.7-pg${RAGPARITY_POSTGRES_MAJOR:-17}
     environment:
       POSTGRES_DB: ragparity
       POSTGRES_USER: ragparity_owner

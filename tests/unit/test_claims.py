@@ -138,3 +138,38 @@ def test_partial_numeric_evidence_is_inconclusive(side, field):
     assert result.status == Status.INCONCLUSIVE
     assert result.code == "CLAIM_NO_EVIDENCE"
     assert result.evidence["fields"] == [f"{side}.{field}"]
+
+
+@pytest.mark.parametrize(
+    "condition,code,status",
+    [
+        ("missing", "CLAIM_PROVENANCE_MISSING", Status.INCONCLUSIVE),
+        ("other-revision", "CLAIM_PROVENANCE_MISMATCH", Status.INCONCLUSIVE),
+        ("matching", "CLAIM_MATCH", Status.PASS),
+    ],
+)
+def test_required_evidence_reference(condition, code, status):
+    from lynvera_ragparity.claims import EvidenceReference
+
+    reference = EvidenceReference(
+        reference_id="ledger:revenue", revision="2", retrieved_at="2026-01-01T00:00:00Z"
+    )
+    expected = evidence().model_copy(update={"provenance": reference})
+    observed = evidence()
+    if condition != "missing":
+        observed = observed.model_copy(
+            update={
+                "provenance": reference.model_copy(
+                    update={
+                        "revision": "old" if condition == "other-revision" else "2",
+                    }
+                )
+            }
+        )
+    result = validate_claim(
+        NumericClaim(
+            claim_id="traceable", expected=expected, observed=observed, require_provenance=True
+        )
+    )
+    assert result.code == code
+    assert result.status == status
