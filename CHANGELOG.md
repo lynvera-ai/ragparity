@@ -2,6 +2,11 @@
 
 ## 0.2.0b1
 
+- Ground public-pilot answers in atomic retrieved facts, with explicit scope abstention,
+  bounded evidence selection, raw-decision logs and a benchmark-independent question client.
+- Pin the local evidence selector to `qwen3:1.7b` and refresh the application model catalog
+  after downloads. Preserve earlier diagnostic failures and qualify repeated pilot results.
+
 - Expand the public-document pilot with eight planetary excerpts, twelve supported
   questions, two abstention cases, explicit metric citations and preserved run evidence.
 - Record the source review of the two original inconclusive answers without upgrading

@@ -47,7 +47,7 @@ pilot and have not been reviewed or endorsed by NASA; see its
 ## Components and resources
 
 `versions.json` fixes application versions, container digests, the verified runtime
-archive and model digests. The selected models are `qwen3:0.6b` for generation and
+archive and model digests. The selected models are `qwen3:1.7b` for evidence selection and
 `nomic-embed-text:v1.5` for embeddings. They are small local models; no inference-quality
 guarantee is made.
 
@@ -56,7 +56,7 @@ and SSH must already be installed. The Python environment needs the package's `p
 extra. The setup uses an isolated `ragparity-public` Colima profile with two CPUs and
 1.5 GiB RAM. It does not change the active Docker context or other profiles. Ollama
 runs natively and loads at most one model at a time with a 4,096-token context.
-The initial fresh download requires at least 6 GiB of available disk space. More space
+The initial fresh download requires at least 8 GiB of available disk space. More space
 may be needed for container caches, updates and later datasets.
 
 Runtime files live outside the repository at
@@ -87,7 +87,7 @@ silently duplicated. An incomplete upload requires inspection before retrying.
 
 Open **http://127.0.0.1:3188**. The account details are in `PILOT_HOME/login.txt`, which
 is private to the local user. Do not commit or share this file. Additional account signup
-is disabled. In a new chat select `qwen3:0.6b` and attach the `rpg-` documents from the
+is disabled. In a new chat select `qwen3:1.7b` and attach the `rpg-` documents from the
 uploaded files. Chat responses in the UI need human review; they are not automatically
 audited by a background extension.
 
@@ -141,34 +141,56 @@ Generated files are `PILOT_HOME/metadata-report.json` and `metadata-report.html`
 .venv/bin/python examples/public_pilot/evaluate.py --case relation-count --case index-columns
 ```
 
-The harness asks the application's retrieval API for real indexed excerpts, passes only
-those retrieved excerpts to its local chat-completion API, and validates the structured
-answer. Expected numeric values are not sent to the model. Reference questions and unit
-labels define the explicit contract. Harness version 3 requires canonical decimal
-strings, an explicit metric ID and a source document ID. The generation schema restricts
-the unit to the requested unit or null, and citation IDs to actual retrieved documents
-or null. Metric IDs are restricted to all IDs read from the actual retrieved passages,
-including distractor measurements. The golden reference never restricts the numeric
-value, chooses a metric or selects the correct document. No answer value is corrected
-after generation.
-Free-form text, malformed values and citations absent
-from retrieval remain inconclusive. Raw answers and findings are retained privately in
-`PILOT_HOME/answers.json`. Each execution also gets its own `PILOT_HOME/runs/<run-id>/`
-directory with answers, full retrieved passages and their hashes, exact generation
-requests, reference/configuration and code hashes, observed runtime/model versions and a
-summary and exact harness source copies. Earlier runs are not overwritten.
-Exit codes are 0 for verified supported
-answers plus correct abstentions, 1 for numeric mismatches, 2 for operational errors and
-3 for inconclusive supported cases or failure to abstain on an unsupported case.
+Harness version 5 uses retrieval, evidence selection and extraction. It retrieves three
+real indexed excerpts across both corpora. `grounded.py` parses atomic facts from the
+pilot's two fixed document formats, retaining subject, label, unit, conditions and exact
+quote offsets. It filters by the caller's explicit unit contract. The local model selects
+one evidence row or `-1`; it does not generate a number, unit, metric or citation. A selected
+answer copies all four fields from the **same retrieved fact**. No golden reference value,
+expected document ID, expected metric or benchmark support flag enters this runtime path.
+The benchmark independently checks the resulting structured answer afterward.
 
-The two unsupported questions have no numeric golden value: they ask for Earth population
-or a temperature at a particular time and place, neither present in the uploaded excerpts.
-Only four null fields count as an abstention. These observations are reported separately
-from supported claim verification; unsupported answers never count as verified facts.
+The selection schema contains one integer and allows at most 24 generated tokens. There
+are no automatic retries or fallbacks to reference values. Errors, malformed selections,
+out-of-range indices and token-budget exhaustion never count as a successful answer or
+abstention. Qualifying default-build and size conditions remain attached to each fact.
 
-The harness is an explicit retrieval-then-generation client, not a claim that every UI
-chat automatically goes through RAGParity. Manual UI conversations exercise Open WebUI's
-own attachment flow and must be reviewed separately.
+These adapters support **English static-document facts**. They conservatively abstain
+before generation when no fact has the requested unit or explicitly named subject,
+when multiple source subjects are requested in one scalar answer, or when a query requests a local
+or time-specific observation, current data or a recorded reading absent from these static
+summaries. This scope policy is not a general natural-language understanding system. Its
+rules can reject valid paraphrases or pronouns and require a different adapter for timestamped data.
+Subjects and software versions are matched against actual retrieved headings; the runtime
+does not contain a list of benchmark entities or consult expected document identifiers.
+`policy_abstentions` and model-selected `-1` decisions are counted separately. The two
+negative benchmark questions never count as verified numeric claims.
+
+Every execution gets its own `PILOT_HOME/runs/<run-id>/` directory with full retrieved
+passages/hashes, eligible facts and quote offsets, exact requests, raw selections, extracted
+answers, observed runtime/model versions, code copies and a summary. The latest answers
+also appear in `PILOT_HOME/answers.json`. Earlier raw generations and diagnostic failures
+remain in their original run directories. Exit codes are 0 for verified supported answers
+plus correct abstentions, 1 for numeric mismatches, 2 for operational errors and 3 for
+inconclusive supported cases, invalid selections or failure to abstain.
+
+For an ordinary question outside the benchmark, use the same corrected runtime:
+
+```bash
+.venv/bin/python examples/public_pilot/ask.py --unit C \
+  "What whole-surface mean temperature in degrees C is listed for Mars?"
+.venv/bin/python examples/public_pilot/ask.py --unit people \
+  "What human population count for Earth is given in the supplied planetary excerpts?"
+```
+
+`ask.py` accepts only question text and a source unit. It reads no benchmark question files
+and has no golden-answer arguments. It reports `ANSWERED`, `ABSTAINED`, `INCONCLUSIVE` or
+`ERROR`, saving private evidence/code copies in `PILOT_HOME/queries/`. `ANSWERED` means
+extracted from retrieved evidence; it does not assert independent golden verification.
+
+The corrected runtime is an explicit client of Open WebUI retrieval and local generation.
+Ordinary UI chats still use the application's own attachment flow. Use `ask.py` to exercise
+the corrected flow; extending the guarantees to every UI chat needs a separate integration.
 
 The initial version 1 run on October 28, 2026 on an 8 GiB Apple M2 produced:
 
@@ -177,11 +199,11 @@ The initial version 1 run on October 28, 2026 on an 8 GiB Apple M2 produced:
 - Inconclusive cases: relation count returned an invalid unit; index columns cited the
   result-set columns document. Both require review and are not verified answers.
 
-An initial three-question smoke run had rejected comma-formatted numeric strings. The
-final harness constrains generation to canonical decimal strings instead of heuristically
+An initial three-question smoke run had rejected comma-formatted numeric strings. That
+version 1 harness constrained generation to canonical decimal strings instead of heuristically
 rewriting answers. The observed results are integration observations, not an accuracy
-benchmark or a 1.0 acceptance decision. No repeated sampling, independent human review
-or multi-day application pilot has been completed by this setup.
+benchmark or a 1.0 acceptance decision. Repeated execution results are recorded in
+[REVIEW.md](REVIEW.md). Independent human review and multi-day application use remain outstanding.
 
 The original eleven answers are retained at `PILOT_HOME/reviews/initial-run.json`.
 The engineering review of the two inconclusive answers is in [REVIEW.md](REVIEW.md),

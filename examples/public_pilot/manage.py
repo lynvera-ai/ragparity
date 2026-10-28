@@ -158,9 +158,9 @@ def install() -> None:
     versions = json.loads((HERE / "versions.json").read_text())
     binary = ROOT / "ollama/ollama"
     if not binary.exists():
-        if shutil.disk_usage(ROOT).free < 6 * 2**30:
+        if shutil.disk_usage(ROOT).free < 8 * 2**30:
             raise RuntimeError(
-                "At least 6 GiB of free space is needed for the initial pilot downloads"
+                "At least 8 GiB of free space is needed for the initial pilot downloads"
             )
         archive = ROOT / "ollama-darwin.tgz"
         with urlopen(versions["ollama_url"], timeout=60) as response, archive.open("wb") as stream:

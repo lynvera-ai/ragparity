@@ -56,7 +56,7 @@ encountered an HTTP error; the time-specific Mars question incorrectly substitut
 diameter as a temperature. Neither negative case demonstrated correct abstention.
 The diagnostic answers, requests and code snapshots are retained in that run directory.
 
-The final full run (harness 3, `20261028T194017Z-5c19a1f2`) produced:
+The full run (harness 3, `20261028T194017Z-5c19a1f2`) produced:
 
 | Scope | Verified | Inconclusive | Operational errors |
 | --- | --- | --- | --- |
@@ -85,10 +85,129 @@ golden-value fallback hide either outcome.
 
 The source/index audit passed for all nineteen documents and fragments. The application,
 model server and metadata audit remain local. The remaining model-selection and abstention
-failures block a 1.0 acceptance decision for this application configuration; they do not
+failures blocked a 1.0 acceptance decision for that application configuration; they did not
 invalidate the recorded metadata-parity result.
 
 This is still a small English-language integration pilot in one application, with two
 public source domains. Harness versions differ in schema, instructions and retrieval
 scope, so their counts are not a controlled accuracy experiment. Independent review,
 repeated sampling and a representative second application remain necessary before 1.0.
+
+
+## Corrected evidence-selection runtime
+
+Version 4 separates answerability, evidence selection, extraction and independent scoring.
+The runtime receives only question text, an explicit unit, the actual retrieved passages
+and a pinned local model. It cannot read the benchmark's expected number, document,
+metric or support flag. The benchmark calls this same runtime and scores its answer later.
+`ask.py` provides ordinary questions through the runtime without a benchmark reference.
+
+Atomic facts bind subject, metric, value, unit, conditions and an exact quote span. The
+model selects one row through a single-integer schema capped at 24 output tokens. The
+structured answer then copies the complete fact, preventing a diameter from acquiring a
+temperature unit. This is source extraction, not a claim that the model generated a correct
+number. Original free generations remain preserved and are not rewritten.
+
+Scope policy abstains before generation for absent units and local/time-specific readings
+unsupported by the static source adapters. These are counted as **policy abstentions**,
+separately from a model selecting `-1`. Invalid, truncated or out-of-range model outputs
+never count as a correct abstention. Generation errors remain ERROR, with no automatic
+retry or reference-value fallback. The former population token loop is avoided by never
+asking the model to manufacture an answer without eligible evidence rows.
+
+The smaller `qwen3:0.6b` selector correctly handled the two unsupported questions but
+introduced over-abstention: run `20261028T212345Z-38d22109` verified 19 of 23 supported
+questions and abstained on four valid PostgreSQL limits. Prompting alone did not reliably
+resolve this regression. Those diagnostics and the preceding targeted trials remain saved.
+
+The selector is now the local Apache-2.0 model
+[`qwen3:1.7b`](https://ollama.com/library/qwen3:1.7b), pinned to its reviewed digest. It
+requires an additional approximately 1.4 GB download; cloud inference and paid APIs remain
+disabled. The initial switch exposed a stale application model catalog (HTTP 400, model
+not found). Both entry points now refresh and validate the catalog before generation.
+Run `20261028T213018Z-1ba883ec` retains that setup failure. Once corrected, the seven-case
+regression run `20261028T213150Z-d6b51a19` verified all five supported questions and
+produced both required policy abstentions without operational errors.
+
+The documents, reference numbers and embedding model were unchanged. The answer protocol,
+selector model and scope enforcement changed together, so before/after results cannot be
+attributed solely to a model improvement or treated as a controlled accuracy benchmark.
+
+### Repeated version 4 pilot
+
+Both complete version 4 runs used the same frozen nineteen documents, twenty-three
+reference questions, two negative questions and pinned models on the 8 GiB Apple M2.
+
+| Run | Supported PASS / total | Correct negative abstentions | Errors | Selection calls |
+| --- | --- | --- | --- | --- |
+| `20261028T213259Z-15582b04` | 23 / 23 | 2 / 2 policy | 0 | 23 |
+| `20261028T213710Z-be97dc11` | 23 / 23 | 2 / 2 policy | 0 | 23 |
+
+Both runs extracted **-65 C**, metric `mean-temperature`, from the retrieved Mars document.
+The population and time-specific Mars queries made no generation request: their explicit
+policy abstentions are not evidence that the model independently learned to abstain.
+All 46 actual model-selection calls completed without HTTP errors, invalid selections or
+token-repeat aborts. The largest reported completion was six tokens, below the 24-token
+budget. The two complete runs exited successfully. Both retained code snapshots match
+their recorded SHA-256 digests. The post-run metadata audit still passed for 19 fragments.
+
+These are deterministic regression repetitions at temperature zero, not independent users,
+random sampling or proof of general accuracy. The runtime remains restricted to the two
+static English document formats; its conservative scope rules can over-abstain. Ordinary
+UI chats require their own integration and acceptance testing before sharing these guarantees.
+
+### Subject applicability and ordinary-query probes
+
+Four additional `ask.py` queries exercised the runtime outside the reference question files.
+Version 4 extracted the correct Neptune mean temperature and Venus solar length of day,
+but substituted Mercury for the Sun and Saturn for Titan. The failed queries remain at
+`PILOT_HOME/queries/20261028T214140Z-1e7fb7fd/` and
+`PILOT_HOME/queries/20261028T214147Z-8b81369f/`. Matching a unit and measurement alone
+was not sufficient evidence that the requested subject was present.
+
+Version 5 now requires exactly one subject explicitly named in the question and present
+in the eligible retrieved facts. The names and software versions come from source headings,
+not a planet allowlist or benchmark identifiers. Absent or ambiguous subjects cause a
+policy abstention before generation. This stateless scope rule can reject pronouns and
+indirect references; it does not claim general entity resolution.
+
+The same four ordinary queries then produced:
+
+| Question scope | Version 5 result | Private query ID |
+| --- | --- | --- |
+| Neptune mean temperature at one-bar pressure | `-200 C`, `mean-temperature`, `nasa-neptune` | `20261028T215513Z-3148ac0d` |
+| Venus solar length of day | `2802.0 hours`, `length-of-day`, `nasa-venus` | `20261028T214440Z-15a09458` |
+| Sun equatorial diameter | Policy abstention, `NO_EVIDENCE_FOR_SUBJECT` | `20261028T214443Z-46e51b9c` |
+| Titan tropical orbital period | Policy abstention, `NO_EVIDENCE_FOR_SUBJECT` | `20261028T214444Z-f97dad4d` |
+
+The Neptune probe was clarified to specify the source's one-bar condition for gas giants.
+Earlier Neptune queries used imprecise "whole-surface" wording; those records remain
+archived but are not acceptance evidence for that spatial condition. The final positive
+values and applicable conditions were source-checked against the pinned table. These are engineering
+probes, not independent human acceptance. The two additional abstentions are policy
+decisions, not evidence of voluntary model abstention. Query records include exact
+requests, retrieved passages, candidate facts, extracted answers and code snapshots.
+
+### Final version 5 repetitions
+
+| Run | Supported PASS / total | Correct negative abstentions | Errors | Selection calls |
+| --- | --- | --- | --- | --- |
+| `20261028T214445Z-fd555c5c` | 23 / 23 | 2 / 2 policy | 0 | 23 |
+| `20261028T214840Z-6808116c` | 23 / 23 | 2 / 2 policy | 0 | 23 |
+
+Both final runs used the subject-applicability policy and completed successfully. Mars
+mean temperature remained **-65 C** with the correct metric and source. The former
+unsupported questions abstained before generation. None of the 46 model selections
+produced an HTTP error, invalid response or token-repeat abort. The largest reported
+completion was six tokens, below the 24-token cap. Every selected quote span matched
+the full actual retrieved text; retained harness source copies matched their recorded code hashes.
+
+The final automated suite contains 190 passing unit tests, including reference/runtime
+separation, altered retrieved values, absent and ambiguous subjects, source-label units,
+invalid indices/types, token-budget exhaustion and safe operational-error recording.
+The source/index audit remains PASS for nineteen documents and nineteen fragments.
+
+Before 1.0, independently review normal usage, conditions and conservative rejection
+rules, exercise another representative application and run longer operational trials.
+This small repeated English-language pilot does not establish universal question-answering
+accuracy, voluntary model abstention, multilingual coverage or guarantees for ordinary UI chats.

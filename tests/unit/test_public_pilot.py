@@ -265,33 +265,34 @@ def test_same_number_in_another_document_is_not_sufficient_provenance(pilot):
 
 
 def test_request_uses_retrieval_and_unit_contract_without_golden_answer_leakage(pilot):
+    from grounded import eligible_facts, selection_payload
+
     question = {
         "id": "hidden-question-id",
         "document_id": "hidden-golden-doc",
         "metric": "hidden-metric",
-        "question": "What is the diameter?",
+        "question": "What is the diameter of Probe?",
         "unit": "km",
         "value": "987654321",
     }
     contexts = [
         {
-            "document_id": "retrieved",
-            "text": "Metric ID: diameter; Equatorial diameter: 4879 km.\n"
-            "Metric ID: rotation-period; Rotation: 24 hours.",
+            "document_id": name,
+            "text": f"Planetary reference excerpt: Probe\nDocument ID: {name}\n"
+            "Metric ID: diameter; Equatorial diameter: 4879 km.\n"
+            "Metric ID: rotation-period; Rotation: 24 hours.\n",
         }
+        for name in ("nasa-retrieved", "nasa-distractor")
     ]
-    payload = pilot.generation_payload(question, contexts, "local-model")
+    facts, reason = eligible_facts(question["question"], question["unit"], contexts)
+    assert reason is None
+    payload = selection_payload(question["question"], question["unit"], facts, "local-model")
     serialized = json.dumps(payload)
     for hidden in ("987654321", "hidden-golden-doc", "hidden-metric", "hidden-question-id"):
         assert hidden not in serialized
-    assert payload["params"]["format"]["properties"]["unit"]["anyOf"][0]["const"] == "km"
-    assert payload["params"]["format"]["properties"]["metric"]["anyOf"][0]["enum"] == [
-        "diameter",
-        "rotation-period",
-    ]
-    assert payload["params"]["format"]["properties"]["source_document_id"]["anyOf"][0]["enum"] == [
-        "retrieved"
-    ]
+    assert payload["params"]["format"]["properties"]["choice"]["enum"] == [-1, 0, 1]
+    assert payload["params"]["num_predict"] == 24
+    assert all(fact.unit == "km" for fact in facts)
 
 
 def test_only_complete_null_answer_is_a_correct_abstention(pilot):
@@ -368,7 +369,7 @@ def test_evaluation_archives_errors_without_secrets_and_continues(pilot, monkeyp
     monkeypatch.setattr(
         pilot,
         "request",
-        lambda url: (
+        lambda url, **kwargs: (
             {
                 "models": [
                     {"name": name, "digest": digest}
@@ -376,6 +377,8 @@ def test_evaluation_archives_errors_without_secrets_and_continues(pilot, monkeyp
                 ]
             }
             if url.endswith("/api/tags")
+            else {"data": [{"id": versions["generation_model"]}]}
+            if url.endswith("/api/models")
             else {"version": "local"}
         ),
     )
@@ -436,7 +439,12 @@ def test_generation_http_error_preserves_evidence_without_response_secrets(pilot
     def request(url, *args, **kwargs):
         if url.endswith("/api/v1/retrieval/query/collection"):
             return {
-                "documents": [["Metric ID: diameter; Equatorial diameter: 4879 km."]],
+                "documents": [
+                    [
+                        "Planetary reference excerpt: Mercury\nDocument ID: nasa-mercury\n"
+                        "Metric ID: diameter; Equatorial diameter: 4879 km."
+                    ]
+                ],
                 "metadatas": [[{"name": "rns-nasa-mercury--" + "a" * 64 + ".txt"}]],
             }
         raise HTTPError(
@@ -448,7 +456,7 @@ def test_generation_http_error_preserves_evidence_without_response_secrets(pilot
         )
 
     monkeypatch.setattr(pilot, "request", request)
-    question = {"id": "q", "question": "Diameter?", "unit": "km", "value": "4879"}
+    question = {"id": "q", "question": "Diameter of Mercury?", "unit": "km", "value": "4879"}
     result = pilot.evaluate_case(
         question,
         "private-token",
