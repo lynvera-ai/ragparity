@@ -15,5 +15,20 @@
   "model_digests": {
     "qwen3:0.6b": "7df6b6e09427a769808717c0a93cadc4ae99ed4eb8bf5ca557c90846becea435",
     "nomic-embed-text:v1.5": "0a109f422b47e3a30ba2b10eca18548e944e8a23073ee3f3e947efcf3c45e59f"
+  },
+  "nasa": {
+    "release": "NASA planetary fact sheet 2025-03-18",
+    "collection": "nasa-planets-2025-03-18",
+    "files": {
+      "facts.html": {
+        "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/",
+        "sha256": "42bdc3f1dae470b85580c6ac66c353964a05d544ad2ac970a6b7d908337a6c3c"
+      },
+      "notes.html": {
+        "url": "https://nssdc.gsfc.nasa.gov/planetary/factsheet/planetfact_notes.html",
+        "sha256": "88a8b66e5455c153f78a1f17a078cb52f10e968f6039899ea517d86841322e8d"
+      }
+    },
+    "revision": "7025791ceaf350e60ac0f15a622d26a7ceca43bdaf9f42794b3a0d5b69cdd1ea"
   }
 }

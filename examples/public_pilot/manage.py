@@ -349,11 +349,11 @@ def provision_audit(manifest: dict) -> None:
                 "content_hash,collection,is_deleted,expected_chunks) "
                 "VALUES (%s,%s,%s,%s,%s,false,%s) ON CONFLICT(document_id) DO NOTHING",
                 (
-                    "postgresql-docs",
+                    document["source_id"],
                     document["id"],
                     document["source_version"],
                     document["content_hash"],
-                    "postgresql-17.6",
+                    document["collection"],
                     psycopg.types.json.Jsonb({"0": document["chunk_hash"]}),
                 ),
             )

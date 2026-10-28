@@ -2,6 +2,11 @@
 
 ## 0.2.0b1
 
+- Expand the public-document pilot with eight planetary excerpts, twelve supported
+  questions, two abstention cases, explicit metric citations and preserved run evidence.
+- Record the source review of the two original inconclusive answers without upgrading
+  them to verified claims or rewriting the generated values.
+
 - Add an isolated local pilot with pinned public PostgreSQL documentation, Open WebUI,
   local inference, independent source metadata, read-only projections and a human review form.
 

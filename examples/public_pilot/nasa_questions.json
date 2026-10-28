@@ -1,0 +1,122 @@
+[
+  {
+    "id": "nasa-mercury-diameter",
+    "document_id": "nasa-mercury",
+    "planet": "mercury",
+    "metric": "diameter",
+    "question": "In the fixed planetary fact sheet, what is the equatorial diameter of Mercury in km?",
+    "value": "4879",
+    "unit": "km"
+  },
+  {
+    "id": "nasa-venus-diameter",
+    "document_id": "nasa-venus",
+    "planet": "venus",
+    "metric": "diameter",
+    "question": "In the fixed planetary fact sheet, what is the equatorial diameter of Venus in km?",
+    "value": "12104",
+    "unit": "km"
+  },
+  {
+    "id": "nasa-earth-diameter",
+    "document_id": "nasa-earth",
+    "planet": "earth",
+    "metric": "diameter",
+    "question": "In the fixed planetary fact sheet, what is the equatorial diameter of Earth in km?",
+    "value": "12756",
+    "unit": "km"
+  },
+  {
+    "id": "nasa-mars-diameter",
+    "document_id": "nasa-mars",
+    "planet": "mars",
+    "metric": "diameter",
+    "question": "In the fixed planetary fact sheet, what is the equatorial diameter of Mars in km?",
+    "value": "6792",
+    "unit": "km"
+  },
+  {
+    "id": "nasa-jupiter-diameter",
+    "document_id": "nasa-jupiter",
+    "planet": "jupiter",
+    "metric": "diameter",
+    "question": "In the fixed planetary fact sheet, what is the equatorial diameter of Jupiter in km?",
+    "value": "142984",
+    "unit": "km"
+  },
+  {
+    "id": "nasa-saturn-diameter",
+    "document_id": "nasa-saturn",
+    "planet": "saturn",
+    "metric": "diameter",
+    "question": "In the fixed planetary fact sheet, what is the equatorial diameter of Saturn in km?",
+    "value": "120536",
+    "unit": "km"
+  },
+  {
+    "id": "nasa-uranus-diameter",
+    "document_id": "nasa-uranus",
+    "planet": "uranus",
+    "metric": "diameter",
+    "question": "In the fixed planetary fact sheet, what is the equatorial diameter of Uranus in km?",
+    "value": "51118",
+    "unit": "km"
+  },
+  {
+    "id": "nasa-neptune-diameter",
+    "document_id": "nasa-neptune",
+    "planet": "neptune",
+    "metric": "diameter",
+    "question": "In the fixed planetary fact sheet, what is the equatorial diameter of Neptune in km?",
+    "value": "49528",
+    "unit": "km"
+  },
+  {
+    "id": "nasa-venus-rotation-period",
+    "document_id": "nasa-venus",
+    "planet": "venus",
+    "metric": "rotation-period",
+    "question": "What signed sidereal rotation period in hours is listed for Venus, rather than its solar length of day?",
+    "value": "-5832.5",
+    "unit": "hours"
+  },
+  {
+    "id": "nasa-uranus-rotation-period",
+    "document_id": "nasa-uranus",
+    "planet": "uranus",
+    "metric": "rotation-period",
+    "question": "What signed sidereal rotation period in hours is listed for Uranus, rather than its solar length of day?",
+    "value": "-17.2",
+    "unit": "hours"
+  },
+  {
+    "id": "nasa-mars-mean-temperature",
+    "document_id": "nasa-mars",
+    "planet": "mars",
+    "metric": "mean-temperature",
+    "question": "What whole-surface mean temperature in degrees C is listed for Mars?",
+    "value": "-65",
+    "unit": "C"
+  },
+  {
+    "id": "nasa-earth-orbital-period",
+    "document_id": "nasa-earth",
+    "planet": "earth",
+    "metric": "orbital-period",
+    "question": "What tropical orbital period in Earth days is listed for Earth?",
+    "value": "365.2",
+    "unit": "days"
+  },
+  {
+    "id": "unsupported-earth-population",
+    "supported": false,
+    "question": "What human population count for Earth is given in the supplied planetary excerpts?",
+    "unit": "people"
+  },
+  {
+    "id": "unsupported-mars-current-temperature",
+    "supported": false,
+    "question": "What temperature in degrees C was measured at the Mars equator at noon on October 28, 2026?",
+    "unit": "C"
+  }
+]

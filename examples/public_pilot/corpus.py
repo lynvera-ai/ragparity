@@ -25,6 +25,31 @@ def digest(data: bytes) -> str:
     return "sha256:" + hashlib.sha256(data).hexdigest()
 
 
+def verified_download(path: Path, url: str, checksum: str) -> bytes:
+    """Reuse only verified bytes; upstream changes require an explicit reference update."""
+    data = path.read_bytes() if path.exists() else None
+    if data is None or hashlib.sha256(data).hexdigest() != checksum:
+        with urlopen(url, timeout=30) as response:
+            data = response.read()
+    if hashlib.sha256(data).hexdigest() != checksum:
+        raise ValueError("Pinned public source checksum mismatch")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(data)
+    return data
+
+
+def reference_document(body: str, question: dict, filename: str, revision: str) -> dict:
+    if len(body) >= 4096:
+        raise ValueError("Public pilot excerpts must each fit in one configured fragment")
+    return {
+        **question,
+        "filename": filename,
+        "source_version": revision,
+        "content_hash": digest(body.encode()),
+        "chunk_hash": digest(body.strip().encode()),
+    }
+
+
 class LimitsParser(HTMLParser):
     def __init__(self) -> None:
         super().__init__(convert_charrefs=True)
@@ -75,11 +100,7 @@ def prepare() -> dict:
         "COPYRIGHT": "COPYRIGHT",
     }.items():
         url = f"https://raw.githubusercontent.com/postgres/postgres/{revision}/{remote}"
-        with urlopen(url, timeout=30) as response:
-            data = response.read()
-        if hashlib.sha256(data).hexdigest() != versions["corpus_file_sha256"][name]:
-            raise ValueError("Pinned public source checksum mismatch")
-        (destination / name).write_bytes(data)
+        data = verified_download(destination / name, url, versions["corpus_file_sha256"][name])
         downloads[name] = {"url": url, "content_hash": digest(data)}
     parser = LimitsParser()
     parser.feed((destination / "limits.sgml").read_text())
@@ -91,19 +112,21 @@ def prepare() -> dict:
         if numeric is None or numeric.group().replace(",", "") != question["value"]:
             raise ValueError("Pinned documentation does not match the reviewed reference values")
         body = render_excerpt(question, row, license_text, revision)
-        if len(body) >= 4096:
-            raise ValueError("Public pilot excerpts must each fit in one configured fragment")
         filename = f"rpg-{question['id']}--{revision}.txt"
         (destination / filename).write_text(body, encoding="utf-8")
         documents.append(
-            {
-                **question,
-                "filename": filename,
-                "source_version": revision,
-                "content_hash": digest(body.encode()),
-                "chunk_hash": digest(body.strip().encode()),
-            }
+            reference_document(
+                body,
+                {**question, "source_id": "postgresql-docs", "collection": "postgresql-17.6"},
+                filename,
+                revision,
+            )
         )
+    # Imported lazily so the standalone PostgreSQL parser remains independently usable.
+    from planets import prepare_planets
+
+    if "nasa" in versions:
+        documents.extend(prepare_planets(destination, versions["nasa"]))
     manifest = {
         "release": versions["corpus_release"],
         "revision": revision,
