@@ -6,6 +6,8 @@ def redact_report(report: CheckReport) -> CheckReport:
     safe = report.model_copy(deep=True)
     safe.redacted = True
     for finding in safe.findings:
+        if finding.source not in {"source", "index", "both", "audit", "checker", "claim"}:
+            finding.source = "redacted"
         finding.source_id = finding.document_id = finding.collection = finding.chunk_id = None
         finding.evidence = {"redacted": True}
         finding.recommendation = "Inspect the private audit output for remediation details."

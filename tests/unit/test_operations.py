@@ -195,3 +195,12 @@ def test_cli_keyboard_interrupt_exits_130(tmp_path, monkeypatch):
 
     monkeypatch.setattr("lynvera_ragparity.cli.create_reader", interrupted)
     assert CliRunner().invoke(app, ["check", "-c", str(config)]).exit_code == 130
+
+
+def test_redaction_removes_custom_layer_labels(synchronized_record):
+    result = ConsistencyChecker().check(MemorySource([synchronized_record]), MemoryIndex([]))
+    result.findings[0].source = "private-customer-database"
+    safe = redact_report(result)
+    assert safe.findings[0].source == "redacted"
+    assert "private-customer-database" not in safe.model_dump_json()
+    assert result.findings[0].source == "private-customer-database"
