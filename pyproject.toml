@@ -1,0 +1,53 @@
+[build-system]
+requires = ["hatchling>=1.26,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "lynvera-ragparity"
+version = "0.1.0"
+description = "Validate consistency across source records, RAG indexes, and structured numeric claims."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "Apache-2.0"
+authors = [{name = "Dr. Felipe Castillo Rendón", email = "felipe.castillo@lynvera.ai"}]
+dependencies = ["pydantic>=2.10,<3", "typer>=0.15,<1", "SQLAlchemy>=2.0.40,<3"]
+classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python :: 3", "Operating System :: OS Independent"]
+
+[project.optional-dependencies]
+postgres = ["psycopg[binary]>=3.2,<4"]
+dev = ["pytest>=8.3,<10", "pytest-cov>=6,<8", "ruff>=0.11,<1", "mypy>=1.15,<2", "build>=1.2,<2", "pip-audit>=2.8,<3"]
+
+[project.scripts]
+ragparity = "lynvera_ragparity.cli:app"
+
+[project.urls]
+Homepage = "https://lynvera.ai"
+Repository = "https://github.com/lynvera-ai/ragparity"
+Issues = "https://github.com/lynvera-ai/ragparity/issues"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/lynvera_ragparity"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = ["integration: requires PostgreSQL with pgvector"]
+
+[tool.coverage.run]
+source = ["lynvera_ragparity"]
+branch = true
+
+[tool.coverage.report]
+show_missing = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+plugins = ["pydantic.mypy"]

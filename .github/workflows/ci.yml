@@ -1,0 +1,57 @@
+name: CI
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.12", "3.13", "3.14"]
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e '.[dev,postgres]'
+      - run: ruff check src tests examples
+      - run: ruff format --check src tests examples
+      - run: mypy src
+      - run: pytest -m 'not integration' --cov=lynvera_ragparity --cov-report=term-missing --cov-fail-under=85
+      - run: python -m build
+      - name: Install wheel and exercise CLI outside the checkout
+        shell: bash
+        run: |
+          python -m venv /tmp/ragparity-wheel
+          /tmp/ragparity-wheel/bin/python -m pip install dist/*.whl
+          cd /tmp
+          /tmp/ragparity-wheel/bin/ragparity --help
+          /tmp/ragparity-wheel/bin/ragparity version
+          /tmp/ragparity-wheel/bin/ragparity init
+          /tmp/ragparity-wheel/bin/ragparity check --output report.json
+          /tmp/ragparity-wheel/bin/ragparity report --input report.json --output report.html
+  integration:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install -e '.[dev,postgres]'
+      - name: Start disposable database and test with SELECT-only role
+        shell: bash
+        run: |
+          export RAGPARITY_DB_PASSWORD="$(python -c 'import secrets; print(secrets.token_hex(24))')"
+          echo "::add-mask::$RAGPARITY_DB_PASSWORD"
+          export RAGPARITY_TEST_DATABASE_URL="postgresql+psycopg://ragparity_reader:${RAGPARITY_DB_PASSWORD}@127.0.0.1:55432/ragparity"
+          docker compose up -d --wait
+          pytest -m integration
+      - if: always()
+        run: docker compose down --volumes
+        env:
+          RAGPARITY_DB_PASSWORD: unused-for-cleanup

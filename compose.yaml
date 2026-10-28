@@ -1,0 +1,17 @@
+name: ragparity
+services:
+  postgres:
+    image: pgvector/pgvector:0.8.7-pg17
+    environment:
+      POSTGRES_DB: ragparity
+      POSTGRES_USER: ragparity_owner
+      POSTGRES_PASSWORD: ${RAGPARITY_DB_PASSWORD:?Set RAGPARITY_DB_PASSWORD in your environment}
+    ports:
+      - "127.0.0.1:${RAGPARITY_DB_PORT:-55432}:5432"
+    volumes:
+      - ./examples/postgresql_pgvector/init.sql:/docker-entrypoint-initdb.d/01-init.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ragparity_owner -d ragparity"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
