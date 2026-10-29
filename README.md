@@ -1,17 +1,29 @@
-# Lynvera RAGParity
+<p align="center">
+  <img src="docs/assets/readme-banner.svg" alt="RAGParity by Lynvera. Metadata consistency for RAG pipelines." width="1200">
+</p>
+
+<h1 align="center">Lynvera RAGParity</h1>
+
+<p align="center">
+  <a href="docs/getting-started.md"><img src="docs/assets/docs.svg" alt="Documentation: get started" height="30"></a>
+  <a href="docs/releases.md"><img src="docs/assets/beta.svg" alt="Status: 0.2.0b1 beta" height="30"></a>
+  <a href="LICENSE"><img src="docs/assets/license.svg" alt="License: Apache 2.0" height="30"></a>
+  <a href="docs/getting-started.md#choose-an-installation-method"><img src="docs/assets/python.svg" alt="Python: 3.12 or newer" height="30"></a>
+  <a href="docs/es/getting-started.md"><img src="docs/assets/spanish.svg" alt="Guía rápida en español" height="30"></a>
+</p>
+
+<p align="center">
+  <a href="docs/README.md">Documentation</a>
+  <a href="docs/python-api.md">Python API</a>
+  <a href="docs/release-notes-0.2.0b1.md">Release notes</a>
+  <a href="docs/es/getting-started.md">Español</a>
+</p>
 
 **Verify source and index consistency in your RAG pipeline.**
 
 RAGParity compares authoritative metadata with indexed metadata and validates structured
 numeric claims. Run it as a command-line tool or a Python library alongside your existing
 pipeline. The core example needs no model, database, subscription or hosted service.
-
-[Get started](docs/getting-started.md)
-[Documentation](docs/README.md)
-[Python API](docs/python-api.md)
-[Release notes](docs/release-notes-0.2.0b1.md)
-
-[English](README.md) [Español](docs/es/getting-started.md)
 
 **Beta 0.2.0b1.** Python 3.12 or newer. Apache License 2.0.
 The supported beta scope is the library and CLI. Chat examples remain experimental;

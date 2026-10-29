@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="248" viewBox="0 0 1200 248" role="img" aria-labelledby="title desc">
+  <title id="title">RAGParity by Lynvera</title>
+  <desc id="desc">Mint block lettering on a dark navy background. Metadata consistency for RAG pipelines.</desc>
+  <defs>
+    <linearGradient id="ink" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#d0ffe9"/>
+      <stop offset="0.55" stop-color="#a4efd0"/>
+      <stop offset="0.55" stop-color="#67c6ac"/>
+      <stop offset="1" stop-color="#3c9c88"/>
+    </linearGradient>
+    <path id="wordmark" d="M0 0h1v1h-1zM1 0h1v1h-1zM2 0h1v1h-1zM3 0h1v1h-1zM0 1h1v1h-1zM4 1h1v1h-1zM0 2h1v1h-1zM4 2h1v1h-1zM0 3h1v1h-1zM1 3h1v1h-1zM2 3h1v1h-1zM3 3h1v1h-1zM0 4h1v1h-1zM2 4h1v1h-1zM0 5h1v1h-1zM3 5h1v1h-1zM0 6h1v1h-1zM4 6h1v1h-1zM7 0h1v1h-1zM8 0h1v1h-1zM9 0h1v1h-1zM6 1h1v1h-1zM10 1h1v1h-1zM6 2h1v1h-1zM10 2h1v1h-1zM6 3h1v1h-1zM7 3h1v1h-1zM8 3h1v1h-1zM9 3h1v1h-1zM10 3h1v1h-1zM6 4h1v1h-1zM10 4h1v1h-1zM6 5h1v1h-1zM10 5h1v1h-1zM6 6h1v1h-1zM10 6h1v1h-1zM13 0h1v1h-1zM14 0h1v1h-1zM15 0h1v1h-1zM16 0h1v1h-1zM12 1h1v1h-1zM12 2h1v1h-1zM12 3h1v1h-1zM14 3h1v1h-1zM15 3h1v1h-1zM16 3h1v1h-1zM12 4h1v1h-1zM16 4h1v1h-1zM12 5h1v1h-1zM16 5h1v1h-1zM13 6h1v1h-1zM14 6h1v1h-1zM15 6h1v1h-1zM18 0h1v1h-1zM19 0h1v1h-1zM20 0h1v1h-1zM21 0h1v1h-1zM18 1h1v1h-1zM22 1h1v1h-1zM18 2h1v1h-1zM22 2h1v1h-1zM18 3h1v1h-1zM19 3h1v1h-1zM20 3h1v1h-1zM21 3h1v1h-1zM18 4h1v1h-1zM18 5h1v1h-1zM18 6h1v1h-1zM25 0h1v1h-1zM26 0h1v1h-1zM27 0h1v1h-1zM24 1h1v1h-1zM28 1h1v1h-1zM24 2h1v1h-1zM28 2h1v1h-1zM24 3h1v1h-1zM25 3h1v1h-1zM26 3h1v1h-1zM27 3h1v1h-1zM28 3h1v1h-1zM24 4h1v1h-1zM28 4h1v1h-1zM24 5h1v1h-1zM28 5h1v1h-1zM24 6h1v1h-1zM28 6h1v1h-1zM30 0h1v1h-1zM31 0h1v1h-1zM32 0h1v1h-1zM33 0h1v1h-1zM30 1h1v1h-1zM34 1h1v1h-1zM30 2h1v1h-1zM34 2h1v1h-1zM30 3h1v1h-1zM31 3h1v1h-1zM32 3h1v1h-1zM33 3h1v1h-1zM30 4h1v1h-1zM32 4h1v1h-1zM30 5h1v1h-1zM33 5h1v1h-1zM30 6h1v1h-1zM34 6h1v1h-1zM36 0h1v1h-1zM37 0h1v1h-1zM38 0h1v1h-1zM39 0h1v1h-1zM40 0h1v1h-1zM38 1h1v1h-1zM38 2h1v1h-1zM38 3h1v1h-1zM38 4h1v1h-1zM38 5h1v1h-1zM36 6h1v1h-1zM37 6h1v1h-1zM38 6h1v1h-1zM39 6h1v1h-1zM40 6h1v1h-1zM42 0h1v1h-1zM43 0h1v1h-1zM44 0h1v1h-1zM45 0h1v1h-1zM46 0h1v1h-1zM44 1h1v1h-1zM44 2h1v1h-1zM44 3h1v1h-1zM44 4h1v1h-1zM44 5h1v1h-1zM44 6h1v1h-1zM48 0h1v1h-1zM52 0h1v1h-1zM48 1h1v1h-1zM52 1h1v1h-1zM49 2h1v1h-1zM51 2h1v1h-1zM50 3h1v1h-1zM50 4h1v1h-1zM50 5h1v1h-1zM50 6h1v1h-1z"/>
+  </defs>
+  <path fill="#0d1821" d="M0 0h1200v248H0z"/>
+  <g transform="translate(112 49) scale(18)" shape-rendering="crispEdges">
+    <use href="#wordmark" transform="translate(.42 .42)" fill="none" stroke="#24695e" stroke-width=".12"/>
+    <use href="#wordmark" transform="translate(.22 .22)" fill="#173c38" stroke="#478c79" stroke-width=".08"/>
+    <use href="#wordmark" fill="url(#ink)"/>
+  </g>
+  <g fill="#b4c7ce" font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="13" letter-spacing="3">
+    <text x="112" y="217">LYNVERA</text>
+    <text x="1078" y="217" text-anchor="end">METADATA CONSISTENCY FOR RAG</text>
+  </g>
+</svg>
