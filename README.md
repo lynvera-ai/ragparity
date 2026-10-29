@@ -11,6 +11,8 @@ pipeline. The core example needs no model, database, subscription or hosted serv
 [Python API](docs/python-api.md)
 [Release notes](docs/release-notes-0.2.0b1.md)
 
+[English](README.md) [Español](docs/es/getting-started.md)
+
 **Beta 0.2.0b1.** Python 3.12 or newer. Apache License 2.0.
 The supported beta scope is the library and CLI. Chat examples remain experimental;
 independent user acceptance is pending.
@@ -57,6 +59,10 @@ in `ragparity.toml` and rerun the check. It reports `VERSION_MISMATCH: 1` and ex
 The [installation guide](docs/getting-started.md) covers Windows, downloaded wheels,
 configuration and troubleshooting. `init [PATH]` refuses to overwrite existing files.
 The distribution is `lynvera-ragparity`; the import package is `lynvera_ragparity`.
+
+Choose an [installation method](docs/getting-started.md#choose-an-installation-method),
+use the [diagnostic guide](docs/troubleshooting.md) if a step fails, and follow
+[updates and removal](docs/maintenance.md) when replacing an installation.
 
 ## Read the result
 

@@ -9,6 +9,9 @@ example, then connect the metadata projection for your application.
 | Goal | Guide |
 | --- | --- |
 | Install and run your first check | [Getting started](getting-started.md) |
+| Start in Spanish | [Guía rápida](es/getting-started.md) |
+| Fix an installation or audit problem | [Troubleshooting and FAQ](troubleshooting.md) |
+| Update, roll back or remove the package | [Installation maintenance](maintenance.md) |
 | Understand commands and exit codes | [CLI reference](cli.md) |
 | Call the checker from Python | [Python API](python-api.md) |
 | Connect PostgreSQL or pgvector | [Database example](../examples/postgresql_pgvector/README.md) |
@@ -16,6 +19,11 @@ example, then connect the metadata projection for your application.
 | Validate a numeric claim | [Numeric contracts](numeric-claims.md) |
 
 ## Contracts and operation
+
+For a first session, install the core package, run the initial PASS, introduce the
+documented version mismatch and open the HTML report. Then choose either the Python
+reader contract or the database example for a small controlled application scope.
+The optional chats are a separate path with additional requirements.
 
 [Metadata and result contracts](contracts.md) define identities, required fields,
 deletion behavior, configuration and findings. The

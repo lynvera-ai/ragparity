@@ -8,6 +8,30 @@ subscription or account. Once installed, this example runs offline.
 The package and command-line tool are in beta. A passing result means that the supplied
 evidence agrees under the selected rules. It does not certify a complete generated answer.
 
+## Choose an installation method
+
+| Method | Use when | Requirements |
+| --- | --- | --- |
+| Source checkout | You want the code, documentation and examples from GitHub. | Git, Python 3.12+ and free build/runtime dependencies. |
+| Wheel | You have a reviewed `.whl` file and want the packaged CLI/library. | Python 3.12+ and free runtime dependencies; no Git checkout needed. |
+| Source archive | You have a reviewed `.tar.gz` file and want to build locally. | Python 3.12+ and free build/runtime dependencies. |
+| PostgreSQL extra | Your source/index metadata live in PostgreSQL or pgvector. | Add `postgres` to the chosen installation; use SELECT-only accounts. |
+
+Initial dependency installation needs network access unless you supply a complete local
+wheelhouse. Once installed, the memory example runs offline. The core installation does
+not download models, start services, create accounts or open a listening port.
+
+| Environment | Evidence for this beta preparation |
+| --- | --- |
+| macOS ARM64, Python 3.12.9 | Clean installation and local CLI/library verification. |
+| Linux | Prior CI covers the documented Python/database matrix; a new clean host installation remains pending. |
+| Windows | Instructions are provided; clean installation remains pending. |
+
+Code is installed in the selected Python environment. Configuration and reports live
+at the paths you choose. The core creates no fixed application data directory or
+background service. Temporary audit data uses the system temporary directory unless
+`policy.temporary_directory` is configured; protect it as described in the security policy.
+
 ## Install from GitHub
 
 The beta code is available on `main`. For installation from source:
@@ -53,6 +77,12 @@ python -m pip install ./lynvera_ragparity-0.2.0b1-py3-none-any.whl
 Compare the file's SHA-256 with the release's `SHA256SUMS` before installing. These
 checksums detect a changed download; they are not a signature or independent attestation.
 No PyPI publication or currently available GitHub Release is implied by these instructions.
+
+For the source archive, use the same environment and run
+`python -m pip install ./lynvera_ragparity-0.2.0b1.tar.gz`. Choose one package format;
+both install the same CLI and library. Use the supplied `SHA256SUMS` to check the actual
+download before installation. A wheel contains the library; the source archive also
+includes documentation and examples.
 
 ## Run the first check
 
@@ -164,3 +194,6 @@ Use the pilot READMEs before installing anything. They involve substantial optio
 downloads and additional memory/storage. They are not a one-command portable chat
 product. The Haystack fresh evaluation passed 22/46 and retained all 24 failures.
 Independent user acceptance remains pending.
+
+For a failed step, see [diagnostics and common questions](troubleshooting.md).
+For a later upgrade or removal, follow [installation maintenance](maintenance.md).
