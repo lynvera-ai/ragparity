@@ -32,7 +32,8 @@ jobs:
           assert requested == __version__ == project['project']['version']
           assert f'## {requested}' in Path('CHANGELOG.md').read_text()
           PY
-      - run: ruff check src tests examples benchmarks
+      - run: ruff check src tests examples benchmarks tools
+      - run: ruff format --check src tests examples benchmarks tools
       - run: mypy src
       - run: pytest -m 'not integration' --cov=lynvera_ragparity --cov-fail-under=90
       - run: python -m build

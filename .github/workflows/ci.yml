@@ -25,8 +25,8 @@ jobs:
         run: python -m pip install -e '.[dev,postgres]'
       - if: matrix.dependencies == 'minimum'
         run: python -m pip install -e '.[dev,postgres]' -c constraints/minimum.txt
-      - run: ruff check src tests examples benchmarks
-      - run: ruff format --check src tests examples benchmarks
+      - run: ruff check src tests examples benchmarks tools
+      - run: ruff format --check src tests examples benchmarks tools
       - run: mypy src
       - run: pytest -m 'not integration' --cov=lynvera_ragparity --cov-report=term-missing --cov-fail-under=90
       - run: python -m build
@@ -34,6 +34,7 @@ jobs:
         shell: bash
         run: |
           python -m venv /tmp/ragparity-wheel
+          /tmp/ragparity-wheel/bin/python -m pip install --upgrade 'pip>=26.2,<27'
           /tmp/ragparity-wheel/bin/python -m pip install dist/*.whl
           cd /tmp
           /tmp/ragparity-wheel/bin/ragparity --help

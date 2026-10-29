@@ -79,6 +79,9 @@ reviewed scope changes. The `dist` directory is ignored by Git.
 
 ## Maintainer publication steps, still pending
 
+The [proposed pull request description](pull-request-0.2.0b1.md) covers the full
+working branch and suggests a review order. PR creation remains with the maintainer.
+
 1. Review the working branch and complete the maintainer's pull request to `main`.
 2. Recheck version, changelog, license, notices and the exact intended commit.
 3. Run the local checks above on that commit and review package inventories and hashes.
