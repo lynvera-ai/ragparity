@@ -214,7 +214,7 @@ accuracy, voluntary model abstention, multilingual coverage or guarantees for or
 
 ### Native Open WebUI chat integration
 
-The corrected runtime is now installed as the native **RAGParity · Public documents**
+The corrected runtime is now installed as the native **RAGParity - Public documents**
 Pipe function in the existing local Open WebUI instance. New chats select this mode by
 default. It retrieves across the same nineteen public documents, forwards the current
 pilot user's session to loopback endpoints and applies the version 5 subject, unit,
@@ -268,7 +268,7 @@ execution, session/role boundaries, input clarification, credential-free receipt
 deployment integrity and rejection of changed UI text, citations or message identifiers.
 Core package coverage is 95.79%. Formatting, lint and static typing checks pass.
 
-The integration applies only to **RAGParity · Public documents**. Other model selections
+The integration applies only to **RAGParity - Public documents**. Other model selections
 retain their ordinary chat behavior. Independent human acceptance, broader document and
 application coverage, and longer operational trials remain necessary before 1.0.
 

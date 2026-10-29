@@ -2,6 +2,10 @@
 
 ## 0.2.0b1
 
+- Add a separate local Haystack application with complete public RFCs, independent
+  fragment manifests, bilingual evaluation and persisted-index fault checks.
+- Remove decorative separators from project text and local chat display names.
+
 - Match planetary measurement types and qualifiers against retrieved labels before model
   selection, separating solar day/rotation, radius/diameter and mean/extreme temperatures.
 - Record the measurement contract and add bilingual regression/probe cases, preserving

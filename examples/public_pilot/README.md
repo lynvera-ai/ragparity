@@ -88,7 +88,7 @@ silently duplicated. An incomplete upload requires inspection before retrying.
 
 Open **http://127.0.0.1:3188**. The account details are in `PILOT_HOME/login.txt`, which
 is private to the local user. Do not commit or share this file. Additional account signup
-is disabled. New chats select **RAGParity · Public documents** after the integration is
+is disabled. New chats select **RAGParity - Public documents** after the integration is
 installed. Ask in English or Spanish, name one subject and include the requested unit,
 for example: "¿Qué temperatura media de toda la superficie en grados C figura para Marte?"
 The response follows the question language. Source excerpts and conditions remain in
@@ -220,7 +220,7 @@ requests and is restricted to the existing local pilot account. Blocking HTTP ru
 worker thread so calls back into the same application do not block its event loop. No
 additional server, listening port, model or Python package is installed for this integration.
 
-Only **RAGParity · Public documents** uses these rules. Other model choices retain the
+Only **RAGParity - Public documents** uses these rules. Other model choices retain the
 application's ordinary chat behavior. The native function uses the pinned image's existing
 Python/Pydantic environment; it does not install or change the toolkit's dependency contract.
 The adapter's shared runtime does not import the toolkit's benchmark/scoring code.

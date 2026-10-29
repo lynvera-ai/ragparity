@@ -56,7 +56,7 @@ def review(
             raise ValueError("The receipt does not match the pinned model and corpus configuration")
         if expected_hashes is not None and receipt.get("code_sha256") != expected_hashes:
             raise ValueError("The receipt does not match the reviewed deployment code")
-        if observation["model"] != "Selected model: RAGParity · Public documents":
+        if observation["model"] != "Selected model: RAGParity - Public documents":
             raise ValueError("The browser did not use the grounded document mode")
         if visible_text(receipt["rendered_answer"]) != " ".join(observation["text"].split()):
             raise ValueError("The visible browser answer differs from the native receipt")

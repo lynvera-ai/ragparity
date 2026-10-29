@@ -156,7 +156,7 @@ def render_answer(result: dict, versions: dict, language="en") -> str:
         )
         return (
             f"**{answer['value']} {unit}**\n\n"
-            f"{subject} — {label}.\n\n"
+            f"{subject}: {label}.\n\n"
             f"{source_label}: [{fact['document_id']}]({url}).\n\n"
             f"> {quote}\n\n" + extracted + conditions
         )
@@ -252,7 +252,7 @@ class ChatAdapter:
             )
         if __task__:
             if __task__ == "title_generation":
-                return json.dumps({"title": "Public documents · RAGParity"})
+                return json.dumps({"title": "Public documents - RAGParity"})
             return json.dumps({"tags": [], "follow_ups": []})
         question, unit = "", None
         try:

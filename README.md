@@ -141,6 +141,8 @@ installs Open WebUI, local models and pgvector with pinned PostgreSQL and planet
 real retrieval, a grounded native chat mode for English and Spanish questions, and
 independently scored browser observations. It also includes a frozen new-question
 evaluation and isolated update/backup/recovery exercises.
+The [second local pilot](examples/second_pilot/README.md) uses a separate Haystack
+application with complete public RFCs and multiple fragments per document.
 [Scale measurements](docs/performance.md) document
 measured resources and their limits. Report consumers should review the
 [migration notes](docs/releases.md#migrating-from-01) before upgrading from 0.1.
@@ -218,4 +220,4 @@ Apache License 2.0. See [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
 Created and maintained by **Dr. Felipe Castillo Rendón**
 
-**Lynvera** · [lynvera.ai](https://lynvera.ai) · felipe.castillo@lynvera.ai
+**Lynvera** - [lynvera.ai](https://lynvera.ai) - felipe.castillo@lynvera.ai

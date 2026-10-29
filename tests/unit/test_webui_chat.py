@@ -205,7 +205,7 @@ def test_browser_review_rejects_changed_text_links_and_deployment(chat):
         "question": question["question"],
         "url": "http://127.0.0.1:3188/c/chat",
         "text": "63 bytes\nSource: identifier-length.",
-        "model": "Selected model: RAGParity · Public documents",
+        "model": "Selected model: RAGParity - Public documents",
         "links": [{"text": "identifier-length", "href": url}],
     }
     receipt = {
@@ -339,7 +339,7 @@ def test_spanish_chat_localizes_answers_clarification_and_errors_without_transla
 ):
     monkeypatch.setattr(adapter, "execute", lambda *args: answer())
     visible = invoke(adapter, text="¿Qué temperatura media de Marte en grados C figura?")
-    assert "Marte — Temperatura media" in visible
+    assert "Marte: Temperatura media" in visible
     assert "Fuente:" in visible and "-65 °C" in visible
     assert "> Mean temperature: -65 C." in visible
     assert "original en inglés" in visible

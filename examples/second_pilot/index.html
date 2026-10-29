@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width">
+<title>RAGParity - Haystack pilot</title>
+<style>
+body{font:16px system-ui;margin:3rem auto;padding:0 1.2rem;max-width:760px;color:#182234;background:#f5f7fa}
+h1{font-size:1.8rem}textarea{box-sizing:border-box;width:100%;padding:1rem;font:inherit;border:1px solid #a6b3c6;border-radius:6px}
+button{background:#194f8c;color:white;border:0;padding:.8rem 1.3rem;margin:1rem 0;border-radius:6px;font:inherit}
+button:disabled{opacity:.5}pre{white-space:pre-wrap;font:inherit;line-height:1.6}article{background:white;padding:1.2rem;border-radius:6px;margin:1rem 0}summary{cursor:pointer}small{color:#526477}
+</style>
+<h1>RAGParity - Haystack pilot</h1>
+<p>Consulta documentos públicos sobre JSON, CSV y robots.txt. Las respuestas usan modelos locales.</p>
+<form id="chat"><label for="question">Pregunta en español o inglés</label><textarea id="question" rows="3" required maxlength="1000"></textarea><button id="send">Consultar</button></form>
+<p id="status" role="status"></p><section id="answers" aria-live="polite"></section>
+<script>
+const form=document.querySelector('#chat'),button=document.querySelector('#send'),status=document.querySelector('#status');
+form.onsubmit=async event=>{event.preventDefault();button.disabled=true;status.textContent='Consultando los documentos locales...';
+try{const result=await fetch('/ask',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({question:document.querySelector('#question').value})});
+if(!result.ok)throw Error('No se pudo completar la consulta.');const data=await result.json();
+const article=document.createElement('article'),text=document.createElement('pre');text.textContent=data.answer;article.append(text);
+for(const source of data.sources){const detail=document.createElement('details'),label=document.createElement('summary'),quote=document.createElement('pre'),link=document.createElement('a');label.textContent=source.document_id+' - Fragmento '+source.chunk_id;quote.textContent=source.text;link.textContent='Documento original';link.href=source.url;link.target='_blank';link.rel='noopener noreferrer';detail.append(label,link,quote);article.append(detail)}
+const receipt=document.createElement('small');receipt.textContent='Consulta: '+data.id;article.append(receipt);document.querySelector('#answers').prepend(article);status.textContent='Consulta completada.';
+}catch(error){status.textContent=error.message}finally{button.disabled=false}};
+</script></html>

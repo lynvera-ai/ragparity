@@ -8,7 +8,7 @@ from urllib.error import HTTPError
 from manage import APP_URL, HERE, ROOT, authenticate, compose, private_write, request, wait_for
 
 FUNCTION_ID = "ragparity_grounded"
-FUNCTION_NAME = "RAGParity · Public documents"
+FUNCTION_NAME = "RAGParity - Public documents"
 BUNDLE_FILES = ("runtime.py", "transport.py", "grounded.py", "language.py", "chat_adapter.py")
 
 
@@ -59,7 +59,7 @@ def install() -> None:
             raise RuntimeError(
                 "The existing function was edited separately; inspect it before updating"
             )
-        if existing["content"] != content:
+        if any(existing.get(key) != form[key] for key in ("content", "name", "meta")):
             existing = request(
                 APP_URL + f"/api/v1/functions/id/{FUNCTION_ID}/update", form, token=token
             )
