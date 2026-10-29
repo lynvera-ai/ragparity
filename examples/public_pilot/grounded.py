@@ -8,6 +8,7 @@ import json
 import re
 from dataclasses import asdict, dataclass
 
+from language import folded, normalize_question
 from pydantic import BaseModel, ConfigDict
 
 NUMBER = r"-?(?:[0-9]+|[0-9]{1,3}(?:,[0-9]{3})+)(?:\.[0-9]+)?"
@@ -103,6 +104,13 @@ def extract_facts(contexts: list[dict]) -> list[Fact]:
 
 def eligible_facts(question: str, unit: str, contexts: list[dict]) -> tuple[list[Fact], str | None]:
     """Conservative scope contract for these static source adapters, independent of goldens."""
+    dated_spanish = re.search(
+        r"\b(?:el|al|del)\s+\d{1,2}\s+(?:de\s+)?(?:enero|febrero|marzo|abril|mayo|junio|"
+        r"julio|agosto|septiembre|octubre|noviembre|diciembre)\b|\b\d{4}-\d{2}-\d{2}\b|"
+        r"\b\d{1,2}[/\-]\d{1,2}[/\-]\d{4}\b|\b\d{1,2}:\d{2}\b",
+        folded(question),
+    )
+    _, question = normalize_question(question)
     # These excerpts provide no timestamped readings. A date of publication is not a reading.
     instantaneous = re.search(
         r"\b(?:now|today|currently|current|latest|real[- ]time|yesterday|tomorrow|"
@@ -113,11 +121,11 @@ def eligible_facts(question: str, unit: str, contexts: list[dict]) -> tuple[list
         re.IGNORECASE,
     )
     local_temperature = unit == "C" and re.search(
-        r"\b(?:equator|pole|city|crater|station|landing site|latitude|longitude)\b",
+        r"\b(?:equator|poles?|city|cities|craters?|stations?|landing sites?|latitude|longitude)\b",
         question,
         re.IGNORECASE,
     )
-    if instantaneous or local_temperature:
+    if dated_spanish or instantaneous or local_temperature:
         return [], "STATIC_EVIDENCE_SCOPE"
     facts = [fact for fact in extract_facts(contexts) if fact.unit == unit]
     if not facts:
@@ -131,7 +139,16 @@ def eligible_facts(question: str, unit: str, contexts: list[dict]) -> tuple[list
     }
     if not subjects:
         return [], "NO_EVIDENCE_FOR_SUBJECT"
-    if len(subjects) != 1:
+    coordinated_subject = any(
+        re.search(
+            r"(?<!\w)" + re.escape(subject) + r"\s+(?:and|or)\b|"
+            r"\b(?:and|or)\s+(?:(?:the|el|la)\s+)?" + re.escape(subject) + r"(?!\w)",
+            question,
+            re.IGNORECASE,
+        )
+        for subject in subjects
+    )
+    if len(subjects) != 1 or coordinated_subject:
         return [], "AMBIGUOUS_SUBJECT"
     return [fact for fact in facts if fact.subject in subjects], None
 

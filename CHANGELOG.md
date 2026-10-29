@@ -2,6 +2,11 @@
 
 ## 0.2.0b1
 
+- Support Spanish questions and localized responses in the grounded chat, with bounded
+  bilingual query normalization, unchanged source quotes and multilingual scope abstention.
+- Add Spanish browser-reference prompts and language-specific evidence review without
+  deploying reference answers or adding models, services or dependencies.
+
 - Integrate the grounded document runtime into a native Open WebUI chat mode, with
   per-session authentication, read-only code deployment and private per-turn receipts.
 - Add independent comparison of browser-visible answers, citations and native chat

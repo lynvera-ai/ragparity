@@ -9,7 +9,7 @@ from manage import APP_URL, HERE, ROOT, authenticate, compose, private_write, re
 
 FUNCTION_ID = "ragparity_grounded"
 FUNCTION_NAME = "RAGParity · Public documents"
-BUNDLE_FILES = ("runtime.py", "transport.py", "grounded.py", "chat_adapter.py")
+BUNDLE_FILES = ("runtime.py", "transport.py", "grounded.py", "language.py", "chat_adapter.py")
 
 
 def install() -> None:

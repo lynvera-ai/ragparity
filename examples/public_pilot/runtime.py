@@ -6,6 +6,7 @@ from dataclasses import asdict
 from urllib.error import HTTPError
 
 from grounded import NULL_ANSWER, eligible_facts, selected_answer, selection_payload
+from language import normalize_question
 from pydantic import ValidationError
 from transport import APP_URL, request
 
@@ -37,11 +38,12 @@ def answer_question(
     app_url=APP_URL,
     call=request,
 ) -> dict:
+    language, normalized = normalize_question(question_text)
     retrieval = call(
         app_url + "/api/v1/retrieval/query/collection",
         {
             "collection_names": ["file-" + file_id for file_id in uploads.values()],
-            "query": question_text,
+            "query": normalized,
             "k": 3,
             "hybrid": False,
         },
@@ -70,9 +72,11 @@ def answer_question(
             )
     facts, abstention_reason = eligible_facts(question_text, unit, contexts)
     payload = (
-        selection_payload(question_text, unit, facts, model) if abstention_reason is None else None
+        selection_payload(normalized, unit, facts, model) if abstention_reason is None else None
     )
     result = {
+        "question_language": language,
+        "normalized_question": normalized,
         "retrieved_documents": identities,
         "retrieved_evidence": evidence,
         "generation_request": payload,

@@ -127,18 +127,35 @@ def evaluate_case(question: dict, token: str, uploads: dict, versions: dict, dat
     return result
 
 
+def load_cases(language="en") -> list[tuple[str, dict]]:
+    cases = [
+        (dataset, item)
+        for dataset, filename in (("postgresql", "questions.json"), ("nasa", "nasa_questions.json"))
+        for item in json.loads((HERE / filename).read_text())
+    ]
+    if language == "es":
+        translated = json.loads((HERE / "questions_es.json").read_text())
+        questions = {item["id"]: item["question"] for item in translated}
+        if len(translated) != len(cases) or set(questions) != {q["id"] for _, q in cases}:
+            raise ValueError("Spanish cases must match every original reference exactly once")
+        cases = [(dataset, {**item, "question": questions[item["id"]]}) for dataset, item in cases]
+    return cases
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dataset", choices=("all", "postgresql", "nasa"), default="all")
+    parser.add_argument("--language", choices=("en", "es"), default="en")
     parser.add_argument(
         "--case", action="append", default=[], help="Select question IDs; repeatable"
     )
     parser.add_argument("--limit", type=int)
     args = parser.parse_args()
-    cases = []
-    for dataset, filename in (("postgresql", "questions.json"), ("nasa", "nasa_questions.json")):
-        if args.dataset in ("all", dataset):
-            cases.extend((dataset, item) for item in json.loads((HERE / filename).read_text()))
+    cases = [
+        (dataset, item)
+        for dataset, item in load_cases(args.language)
+        if args.dataset in ("all", dataset)
+    ]
     if args.case:
         unknown = set(args.case) - {item["id"] for _, item in cases}
         if unknown:
@@ -160,7 +177,8 @@ def main() -> None:
     directory = ROOT / "runs" / run_id
     outcomes = []
     provenance = {
-        "harness_version": 5,
+        "harness_version": 6,
+        "question_language": args.language,
         "answer_mode": "evidence_selection",
         "started_at": datetime.now(UTC).isoformat(),
         "versions": versions,
@@ -177,6 +195,7 @@ def main() -> None:
                 "runtime.py",
                 "transport.py",
                 "grounded.py",
+                "language.py",
                 "corpus.py",
                 "planets.py",
                 "manage.py",

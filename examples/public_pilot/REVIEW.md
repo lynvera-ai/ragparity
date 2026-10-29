@@ -271,3 +271,91 @@ Core package coverage is 95.79%. Formatting, lint and static typing checks pass.
 The integration applies only to **RAGParity · Public documents**. Other model selections
 retain their ordinary chat behavior. Independent human acceptance, broader document and
 application coverage, and longer operational trials remain necessary before 1.0.
+
+### Spanish query and response support
+
+Harness version 6 adds a bounded Spanish/English vocabulary to the shared runtime.
+Spanish source names and measurement terms normalize to English retrieval terms, while
+unknown words and all numbers remain present. Original questions, detected language and
+normalized queries are retained in private evidence. The vocabulary contains no reference
+answers, test IDs or assertions that an entity belongs to the corpus. Applicable subjects
+still come from retrieved headings. English and Spanish coordinate-subject questions are
+conservatively rejected when one scalar answer would omit another requested subject.
+
+The native chat localizes answer labels, display units, status messages, clarification,
+abstention and operational-error messages. Source quotes and conditions retain the original
+English and are explicitly labeled. Structured evidence units and numeric strings remain
+unchanged. Spanish dates, temporal terms and local geographic terms participate in the
+same scope checks; a current or local reading must not become a static mean temperature.
+The change adds no model, translation service, generated translation call or dependency.
+
+`questions_es.json` provides twenty-five translated prompts and IDs only. Offline scoring
+joins these prompts to the original independent reference values and support flags.
+Neither this file nor the original reference files are deployed to the chat. The same
+nineteen documents, full retrieval scope and pinned model digests remain in use.
+
+The five-case Spanish smoke run `20261028T230836Z-9fe26055` passed all three supported
+regressions and both policy abstentions. Diagnostic English run
+`20261028T231007Z-4d2d3c93` overlapped an installation restart: sixteen supported cases
+passed before nine connection/availability errors affected the remaining requests. It
+exited with an operational-error status and is retained as a diagnostic, not acceptance
+evidence. The complete English repetition was restarted after installation finished.
+
+The preceding native-chat deployment and manifest are retained under
+`PILOT_HOME/ui-deployments/4e6927157c9bec2c/`; earlier English browser evidence remains in
+`PILOT_HOME/ui-evidence/` and `ui-report.json`. Spanish observations and their report are
+kept separately. These are bounded engineering regressions; independent bilingual human
+review and broader paraphrase/application coverage remain required before 1.0.
+
+The stable English repetition `20261028T231356Z-d61aa464` passed 23/23 supported cases
+and 2/2 policy abstentions with zero errors. After the final numeric-date, plural-location
+and coordinated-unit checks were added, run `20261028T231936Z-20632a9b` repeated the same
+23/23 and 2/2 result with zero errors or invalid selections. This final run shared the
+local model service with the Spanish browser checks; no service restart occurred during
+either acceptance run. These counts do not measure latency or independent model accuracy.
+
+The final automated suite passes **219 unit tests**, with 95.79% core coverage. New cases
+cover Spanish prompts, accent-free wording, source-subject aliases, unit ambiguity,
+calendar and numeric dates, clock times, plural locations, Spanish presentation and
+normalization provenance. Altered retrieved values still determine the answer, and
+unsupported Spanish readings make no model-selection call. The original reference
+values and source documents remain unchanged.
+
+#### Final Spanish browser acceptance
+
+All twenty-five Spanish reference prompts were submitted through the native chat in
+`e0b47aba-65fd-4f4b-885d-5184363f8652`, using the final deployed code. Independent review
+matched every visible response, native assistant-message receipt, selected mode, pinned
+version, deployment hash and applicable official citation.
+
+| Final check | Result |
+| --- | --- |
+| Supported Spanish PostgreSQL questions | 11 / 11 PASS |
+| Supported Spanish planetary questions | 12 / 12 PASS |
+| Spanish unsupported reference questions | 2 / 2 policy abstentions |
+| Reference-question operational errors or invalid selections | 0 |
+| Additional ordinary browser probes | 8 / 8 PASS |
+| Model selections across all 33 browser turns | 25 |
+| Largest reported completion / configured cap | 6 / 24 tokens |
+
+The additional probes covered a missing unit, absent Sun, coordinated Mars/Sun subjects,
+a slash-form date, polar temperature, two requested units, accent-free Spanish and a
+switch back to English within the same chat. The first six produced the required
+clarification or policy abstention without a model-selection call. Accent-free Spanish
+returned the sourced Mars mean temperature of **-65 C**; the English turn returned the
+sourced Jupiter diameter of **142984 km** with English presentation. Spanish reference
+answers preserved negative rotation signs and the distinction between mean temperature
+and diameter. No token-repeat abort or generation error occurred.
+
+Browser observation briefly paused twice when its access checks timed out. Permitted
+retries resumed observing the same pending messages; questions were not resubmitted and
+each final browser observation matched exactly one native receipt. These tooling pauses
+are separate from the recorded application results.
+
+Private evidence is at `PILOT_HOME/ui-evidence-es/observations.json`, `probes.json`,
+`probe-report.json` and screenshots in that directory, plus `PILOT_HOME/ui-report-es.json`
+and the native receipts. The final read-only deployment and manifest are retained under
+`PILOT_HOME/ui-deployments/47d8cf02a2215337/`. Earlier English evidence and reports remain
+preserved. The source/index audit still passes for nineteen documents and fragments.
+This establishes acceptance for the bounded pilot vocabulary and tested questions;
+it does not establish arbitrary Spanish understanding or 1.0 readiness.

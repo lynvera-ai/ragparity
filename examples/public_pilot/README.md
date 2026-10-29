@@ -89,8 +89,10 @@ silently duplicated. An incomplete upload requires inspection before retrying.
 Open **http://127.0.0.1:3188**. The account details are in `PILOT_HOME/login.txt`, which
 is private to the local user. Do not commit or share this file. Additional account signup
 is disabled. New chats select **RAGParity · Public documents** after the integration is
-installed. Ask in English, name one subject and include the requested unit, for example:
-"What whole-surface mean temperature in degrees C is listed for Mars?" The mode uses the
+installed. Ask in English or Spanish, name one subject and include the requested unit,
+for example: "¿Qué temperatura media de toda la superficie en grados C figura para Marte?"
+The response follows the question language. Source excerpts and conditions remain in
+their original English, explicitly labeled in Spanish responses. The mode uses the
 nineteen loaded documents automatically; do not attach additional files. It shows the
 extracted value, citation, excerpt and applicable source conditions, or a clear abstention.
 Missing or ambiguous units ask for clarification. It uses the same stateless subject,
@@ -146,7 +148,8 @@ Generated files are `PILOT_HOME/metadata-report.json` and `metadata-report.html`
 .venv/bin/python examples/public_pilot/evaluate.py --case relation-count --case index-columns
 ```
 
-Harness version 5 uses retrieval, evidence selection and extraction. It retrieves three
+Harness version 6 adds bilingual query normalization to version 5 retrieval, evidence
+selection and extraction. It retrieves three
 real indexed excerpts across both corpora. `grounded.py` parses atomic facts from the
 pilot's two fixed document formats, retaining subject, label, unit, conditions and exact
 quote offsets. It filters by the caller's explicit unit contract. The local model selects
@@ -160,14 +163,15 @@ are no automatic retries or fallbacks to reference values. Errors, malformed sel
 out-of-range indices and token-budget exhaustion never count as a successful answer or
 abstention. Qualifying default-build and size conditions remain attached to each fact.
 
-These adapters support **English static-document facts**. They conservatively abstain
+These adapters support **English static-document facts**, queried in English or Spanish. They conservatively abstain
 before generation when no fact has the requested unit or explicitly named subject,
 when multiple source subjects are requested in one scalar answer, or when a query requests a local
 or time-specific observation, current data or a recorded reading absent from these static
 summaries. This scope policy is not a general natural-language understanding system. Its
 rules can reject valid paraphrases or pronouns and require a different adapter for timestamped data.
-Subjects and software versions are matched against actual retrieved headings; the runtime
-does not contain a list of benchmark entities or consult expected document identifiers.
+Subjects and software versions are matched against actual retrieved headings after
+query normalization. The bilingual term dictionary translates entity names but does not
+assert corpus membership or consult expected document identifiers.
 `policy_abstentions` and model-selected `-1` decisions are counted separately. The two
 negative benchmark questions never count as verified numeric claims.
 
@@ -193,7 +197,7 @@ and has no golden-answer arguments. It reports `ANSWERED`, `ABSTAINED`, `INCONCL
 `ERROR`, saving private evidence/code copies in `PILOT_HOME/queries/`. `ANSWERED` means
 extracted from retrieved evidence; it does not assert independent golden verification.
 
-The same `runtime.py`, `grounded.py` and HTTP transport now run in the native Open WebUI
+The same `runtime.py`, `grounded.py`, `language.py` and HTTP transport run in the native Open WebUI
 Pipe function as well as the host clients. The read-only deployment bundle contains no
 benchmark questions or golden answers, database passwords or saved account tokens. The
 function forwards the current signed-in user's session to loopback retrieval and selection
@@ -210,6 +214,29 @@ To update the installed code, rerun `webui_install.py install`. It rebuilds the 
 hashed bundle and recreates only this pilot's WebUI container, retaining chats and volumes.
 Separately edited function code is rejected rather than overwritten. Installation is
 idempotent; signup and loopback network restrictions remain in force.
+
+`language.py` uses a bounded bilingual domain vocabulary for query normalization and
+presentation. It handles accents, Spanish source-subject names and measurement units,
+while preserving unknown words and numbers. It is not a general translator: unfamiliar
+wording, pronouns and ambiguous subjects can still require clarification or abstention.
+Local/time-specific scope checks apply to Spanish dates and locations as well as English.
+No translation service, extra model call, paid API or new dependency is used. Receipts
+retain the original question, detected language and normalized query. Model selection
+remains capped at 24 output tokens and copies a complete retrieved fact.
+
+`questions_es.json` contains only translated test prompts and IDs. The scorer joins them
+with the unchanged independent references; this file is never deployed to the chat runtime.
+Repeat the Spanish harness and review separately captured Spanish browser evidence with:
+
+```bash
+.venv/bin/python examples/public_pilot/evaluate.py --language es
+.venv/bin/python examples/public_pilot/review_ui.py --language es \
+  --observations /path/to/spanish-observations.json
+```
+
+The Spanish browser report is `PILOT_HOME/ui-report-es.json`, leaving the original
+English report in place. Language selection affects question text and presentation;
+source documents, reference values, model digests and retrieval scope remain unchanged.
 
 Each completed UI turn writes a private receipt inside the application's existing data
 volume, linked to the chat and assistant message. To export and score UI observations:

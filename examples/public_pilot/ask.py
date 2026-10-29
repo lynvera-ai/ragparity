@@ -12,7 +12,9 @@ from manage import HERE, MODEL_URL, ROOT, authenticate, private_write, request
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("question", help="English question about the indexed static documents")
+    parser.add_argument(
+        "question", help="English or Spanish question about the indexed static documents"
+    )
     parser.add_argument("--unit", required=True, help="Explicit source unit, e.g. C, km or columns")
     args = parser.parse_args()
     if not args.question.strip() or not args.unit.strip():
@@ -35,12 +37,19 @@ def main() -> None:
     record = {
         "question": args.question,
         "unit": args.unit,
-        "harness_version": 5,
+        "harness_version": 6,
         "versions": versions,
         "result": result,
         "code_sha256": {
             name: hashlib.sha256((HERE / name).read_bytes()).hexdigest()
-            for name in ("ask.py", "evaluate.py", "runtime.py", "transport.py", "grounded.py")
+            for name in (
+                "ask.py",
+                "evaluate.py",
+                "runtime.py",
+                "transport.py",
+                "grounded.py",
+                "language.py",
+            )
         },
     }
     path = ROOT / "queries" / query_id / "answer.json"

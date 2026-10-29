@@ -10,7 +10,7 @@ import re
 from collections import Counter
 from pathlib import Path
 
-from evaluate import validate_answer
+from evaluate import load_cases, validate_answer
 from manage import HERE, ROOT, private_write
 
 
@@ -26,6 +26,7 @@ def review(
     questions: dict,
     versions: dict,
     expected_hashes=None,
+    expected_language=None,
 ) -> dict:
     if len(observations) != len(questions) or {item["id"] for item in observations} != set(
         questions
@@ -47,6 +48,8 @@ def review(
         if observation["question"] != question["question"] or len(candidates) != 1:
             raise ValueError("A browser question must match one native receipt in the same chat")
         receipt = candidates[0]
+        if expected_language is not None and receipt.get("language", "en") != expected_language:
+            raise ValueError("The native response does not use the expected question language")
         if observation.get("assistant_id") not in (None, receipt["message_id"]):
             raise ValueError("The browser message does not match the native receipt")
         if receipt.get("versions") != versions:
@@ -77,7 +80,12 @@ def review(
                         value is None
                         for value in result.get("structured_answer", {"missing": 1}).values()
                     )
-                    and "No supported answer." in observation["text"]
+                    and (
+                        "No hay una respuesta respaldada."
+                        if receipt.get("language") == "es"
+                        else "No supported answer."
+                    )
+                    in observation["text"]
                 ),
             )
         else:
@@ -118,20 +126,20 @@ def review(
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--observations", type=Path, default=ROOT / "ui-evidence/observations.json")
+    parser.add_argument("--language", choices=("en", "es"), default="en")
     args = parser.parse_args()
-    questions = {}
-    for dataset, filename in (("postgresql", "questions.json"), ("nasa", "nasa_questions.json")):
-        questions.update(
-            {item["id"]: (dataset, item) for item in json.loads((HERE / filename).read_text())}
-        )
+    questions = {item["id"]: (dataset, item) for dataset, item in load_cases(args.language)}
     report = review(
         json.loads(args.observations.read_text()),
         [json.loads(path.read_text()) for path in (ROOT / "ui-receipts").glob("*.json")],
         questions,
         json.loads((HERE / "versions.json").read_text()),
         json.loads((ROOT / "ui-install.json").read_text())["code_sha256"],
+        args.language,
     )
-    private_write(ROOT / "ui-report.json", json.dumps(report, indent=2) + "\n")
+    report["question_language"] = args.language
+    report_file = "ui-report-es.json" if args.language == "es" else "ui-report.json"
+    private_write(ROOT / report_file, json.dumps(report, indent=2) + "\n")
     print(json.dumps({key: value for key, value in report.items() if key != "cases"}))
     if report["errors"]:
         raise SystemExit(2)

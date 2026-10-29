@@ -9,6 +9,7 @@ import uuid
 from datetime import UTC, datetime
 from pathlib import Path
 
+from language import LABELS_ES, SUBJECTS_ES, UNITS_ES, normalize_question, question_language
 from runtime import answer_question, refresh_model_catalog
 from transport import request
 
@@ -35,22 +36,38 @@ REASONS = {
     "STATIC_EVIDENCE_SCOPE": "These documents contain no local or time-specific readings.",
 }
 
+REASONS_ES = {
+    "NO_EVIDENCE_FOR_UNIT": (
+        "Los documentos públicos no contienen evidencia para esa unidad de medida."
+    ),
+    "NO_EVIDENCE_FOR_SUBJECT": "El sujeto solicitado no aparece en los documentos recuperados.",
+    "AMBIGUOUS_SUBJECT": "Pregunta por un solo sujeto con nombre explícito cada vez.",
+    "STATIC_EVIDENCE_SCOPE": (
+        "Estos documentos no contienen mediciones locales ni de un momento concreto."
+    ),
+}
+
 
 class ChatInputError(ValueError):
     """A safe clarification message, rather than an operational failure."""
 
 
-def question_text(body: dict) -> str:
+def question_text(body: dict, language="en") -> str:
     message = next(
         (item for item in reversed(body.get("messages", [])) if item.get("role") == "user"), {}
     )
     content = message.get("content", "")
     if not isinstance(content, str) or not content.strip() or len(content) > 4000:
-        raise ChatInputError("Use one text question of at most 4,000 characters.")
+        raise ChatInputError(
+            "Usa una sola pregunta de texto de hasta 4.000 caracteres."
+            if language == "es"
+            else "Use one text question of at most 4,000 characters."
+        )
     return content.strip()
 
 
 def infer_unit(question: str) -> str | None:
+    _, question = normalize_question(question)
     matches = {
         unit
         for unit, pattern in UNIT_PATTERNS.items()
@@ -66,11 +83,23 @@ def infer_unit(question: str) -> str | None:
             re.IGNORECASE,
         )
     }
+    # Coordinated requested units are ambiguous even if only the first follows 'in'.
+    if explicit:
+        explicit.update(
+            unit
+            for unit in matches
+            if re.search(
+                r"\b(?:and|or)\s+(?:in\s+)?(?:" + UNIT_PATTERNS[unit] + r")(?!\w)",
+                question,
+                re.IGNORECASE,
+            )
+        )
     selected = explicit or matches
     return next(iter(selected)) if len(selected) == 1 else None
 
 
-def render_answer(result: dict, versions: dict) -> str:
+def render_answer(result: dict, versions: dict, language="en") -> str:
+    spanish = language == "es"
     if result["status"] == "ANSWERED":
         answer = result["structured_answer"]
         fact = result["eligible_evidence_rows"][result["selection_index"]]
@@ -84,28 +113,51 @@ def render_answer(result: dict, versions: dict) -> str:
                 + "/doc/src/sgml/limits.sgml"
             )
         unit = "°C" if answer["unit"] == "C" else answer["unit"]
+        if spanish:
+            unit = UNITS_ES.get(answer["unit"], answer["unit"])
+        subject = SUBJECTS_ES.get(fact["subject"], fact["subject"]) if spanish else fact["subject"]
+        label = LABELS_ES.get(fact["label"], fact["label"]) if spanish else fact["label"]
+        source_label = "Fuente" if spanish else "Source"
+        extracted = (
+            "Extraído del documento recuperado. Extracto original en inglés."
+            if spanish
+            else "Extracted from the retrieved document."
+        )
         quote = fact["quote"]
         if quote.startswith("Metric ID:"):
             quote = quote.split("; ", 1)[-1]
         conditions = (
-            "\n\nSource conditions: " + fact["conditions"]
+            ("\n\nCondiciones de la fuente (inglés): " if spanish else "\n\nSource conditions: ")
+            + fact["conditions"]
             if identity["source_id"] == "nasa-planetary"
             else ""
         )
         return (
             f"**{answer['value']} {unit}**\n\n"
-            f"{fact['subject']} — {fact['label']}.\n\n"
-            f"Source: [{fact['document_id']}]({url}).\n\n"
-            f"> {quote}\n\n"
-            "Extracted from the retrieved document." + conditions
+            f"{subject} — {label}.\n\n"
+            f"{source_label}: [{fact['document_id']}]({url}).\n\n"
+            f"> {quote}\n\n" + extracted + conditions
         )
     if result["status"] == "ABSTAINED":
         reason = REASONS.get(
             result.get("abstention_reason"), "No supporting evidence was selected."
         )
-        return "**No supported answer.**\n\n" + reason
+        if spanish:
+            reason = REASONS_ES.get(
+                result.get("abstention_reason"), "No se seleccionó evidencia suficiente."
+            )
+        return (
+            "**No hay una respuesta respaldada.**\n\n"
+            if spanish
+            else "**No supported answer.**\n\n"
+        ) + reason
     if result["status"] == "CLARIFICATION":
         return result["message"]
+    if spanish:
+        return (
+            "**No se pudo responder de forma segura.**\n\n"
+            "La comprobación local de la evidencia no se completó."
+        )
     return "**Unable to answer safely.**\n\nThe local evidence check did not complete."
 
 
@@ -160,29 +212,55 @@ class ChatAdapter:
         __files__=None,
     ):
         config = self.configuration()
+        last = next(
+            (
+                m.get("content", "")
+                for m in reversed(body.get("messages", []))
+                if m.get("role") == "user"
+            ),
+            "",
+        )
+        language = question_language(last) if isinstance(last, str) else "en"
+        spanish = language == "es"
         if (__user__ or {}).get("id") != config["owner_id"]:
-            return "This document mode is restricted to the local pilot account."
+            return (
+                "Este modo está restringido a la cuenta local del piloto."
+                if spanish
+                else "This document mode is restricted to the local pilot account."
+            )
         if __task__:
             if __task__ == "title_generation":
                 return json.dumps({"title": "Public documents · RAGParity"})
             return json.dumps({"tags": [], "follow_ups": []})
         question, unit = "", None
         try:
-            question = question_text(body)
+            question = question_text(body, language)
             if __files__:
                 raise ChatInputError(
-                    "This mode uses the loaded public documents; remove other attachments."
+                    "Este modo usa los documentos públicos cargados; "
+                    "retira los otros archivos adjuntos."
+                    if spanish
+                    else "This mode uses the loaded public documents; remove other attachments."
                 )
             authorization = __request__.headers.get("authorization", "") if __request__ else ""
             if not authorization.startswith("Bearer "):
-                raise ChatInputError("Please sign in again before using the document mode.")
+                raise ChatInputError(
+                    "Vuelve a iniciar sesión antes de usar este modo."
+                    if spanish
+                    else "Please sign in again before using the document mode."
+                )
             token = authorization.removeprefix("Bearer ")
             unit = infer_unit(question)
             if unit is None:
                 result = {
                     "status": "CLARIFICATION",
-                    "message": "Please ask in English and name one subject. "
-                    "Include one requested unit such as Celsius, km, hours or columns.",
+                    "message": (
+                        "Nombra un solo sujeto e incluye una unidad de medida, "
+                        "como Celsius, km, horas o columnas."
+                        if spanish
+                        else "Name one subject and include one requested unit "
+                        "such as Celsius, km, hours or columns."
+                    ),
                 }
             else:
                 if __event_emitter__:
@@ -190,7 +268,9 @@ class ChatAdapter:
                         {
                             "type": "status",
                             "data": {
-                                "description": "Checking the public documents…",
+                                "description": "Comprobando los documentos públicos…"
+                                if spanish
+                                else "Checking the public documents…",
                                 "done": False,
                             },
                         }
@@ -202,10 +282,11 @@ class ChatAdapter:
             result = {"status": "CLARIFICATION", "message": str(exc)}
         except Exception as exc:
             result = {"status": "ERROR", "error_type": type(exc).__name__}
-        rendered = render_answer(result, config["versions"])
+        rendered = render_answer(result, config["versions"], language)
         self.save_receipt(
             {
                 "schema_version": 1,
+                "language": language,
                 "chat_id": __chat_id__,
                 "message_id": __message_id__,
                 "question": question,
@@ -218,6 +299,14 @@ class ChatAdapter:
         )
         if __event_emitter__:
             await __event_emitter__(
-                {"type": "status", "data": {"description": "Document check complete", "done": True}}
+                {
+                    "type": "status",
+                    "data": {
+                        "description": "Comprobación documental completada"
+                        if spanish
+                        else "Document check complete",
+                        "done": True,
+                    },
+                }
             )
         return rendered
