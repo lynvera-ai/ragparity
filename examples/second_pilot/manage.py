@@ -19,6 +19,7 @@ from haystack.components.preprocessors import DocumentSplitter
 from haystack.document_stores.in_memory import InMemoryDocumentStore
 from haystack_integrations.components.embedders.ollama import OllamaDocumentEmbedder
 from parity import compare, metadata, word_windows
+from scoring import source_texts, validate_evidence
 from transport import MODEL_URL, request
 
 URL = "http://127.0.0.1:3189"
@@ -176,6 +177,8 @@ def stop() -> None:
 
 def evaluate() -> None:
     cases = json.loads((HERE / "questions.json").read_text())
+    checks = json.loads((HERE / "answer_checks.json").read_text())
+    originals = source_texts(ROOT, json.loads((HERE / "versions.json").read_text()))
     run = ROOT / "evaluations" / datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
     run.mkdir(parents=True, exist_ok=False)
     run.chmod(0o700)
@@ -187,12 +190,14 @@ def evaluate() -> None:
             "code_sha256": code,
             "evaluator_sha256": digest((HERE / "manage.py").read_text()),
             "questions_sha256": digest((HERE / "questions.json").read_text()),
+            "answer_checks": checks,
+            "scorer_sha256": digest((HERE / "scoring.py").read_text()),
             "manifest": json.loads((ROOT / "source-manifest.json").read_text()),
             "models": json.loads((ROOT / "models.json").read_text()),
             "index_sha256": digest((ROOT / "index.json").read_text()),
         },
     )
-    for name in (*code, "manage.py", "questions.json"):
+    for name in (*code, "manage.py", "questions.json", "answer_checks.json", "scoring.py"):
         save_path = run / "code" / name
         from app import private_write
 
@@ -237,7 +242,15 @@ def evaluate() -> None:
             language_ok = response["requested_language"] == lang and response[
                 "answer_language"
             ] in (lang, "neutral")
-            passed = bool(answer) and answer_ok and source_ok and generation_ok and language_ok
+            evidence_ok = validate_evidence(response, originals, checks.get(case["id"], {}), case)
+            passed = (
+                bool(answer)
+                and answer_ok
+                and source_ok
+                and generation_ok
+                and language_ok
+                and evidence_ok
+            )
             results.append(
                 {
                     "id": case["id"] + "-" + lang,
@@ -246,6 +259,7 @@ def evaluate() -> None:
                     "generation_check": generation_ok,
                     "language_check": language_ok,
                     "source_check": source_ok,
+                    "evidence_check": evidence_ok,
                     "receipt": response["id"],
                     "seconds": round(time.monotonic() - before, 2),
                 }

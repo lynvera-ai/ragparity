@@ -79,7 +79,7 @@ application catalog and saved titles were read back to verify the change. Histor
 answer bodies, screenshots and original evaluation receipts remain intact outside
 Git. The original source/index audit still passes for 19 documents and fragments.
 
-## Final completed run
+## Flow 3 completed run
 
 Run `20261029T044507Z` executed all 18 questions against flow version 3. Automatic
 checks passed 17 of 18 cases: 8 of 9 Spanish cases and all 9 English cases. The
@@ -116,8 +116,9 @@ and static typing pass. The original Open WebUI corpus still passes its independ
 checks found no remaining middle dots or decorative separators in authored text.
 Historical raw evidence remains preserved outside the repository.
 
-Before 1.0 acceptance, correct the four substantive response defects, resolve the
-normative-language review, and obtain independent review using new questions. Add
+At the end of flow 3, four substantive response defects and one normative-language
+review remained open. The correction below supersedes those five items. Independent
+review with new questions is still required before stable acceptance. Add
 larger corpora and sustained update/recovery runs. This pilot is complete as an
 observed evaluation; it is not a claim that the generated chat is ready for 1.0.
 
@@ -127,3 +128,70 @@ fragment audit still passed. Repeating the English CSV MIME question after resta
 produced exactly the same answer, with a new native receipt. The private
 `restart-evidence.json` records these checks. This is a process restart check,
 not a claim of long-term recovery under every failure mode.
+
+
+## Corrected extractive flow
+
+Flow 7 replaces free answer generation with a complete source quotation. Spanish
+search queries still use the same local model and embedding service. Answer
+selection uses lexical ranking over the retrieved, verified passages, with the
+original question retained alongside its translation. Inflections and
+analysis/parsing search vocabulary are normalized. The overlap gate requires
+three distinct content terms, or every term for shorter queries.
+
+This is an explicit extraction policy, not evidence that the small model learned
+the five corrections. Experimental model selectors and draft-copy variants were
+rejected when they produced unrelated selections, false abstentions or unverifiable
+anchors. Their diagnostic records remain outside Git. No source, expected answer,
+question text or model weights were changed to obtain the final result.
+
+The response format changed deliberately: headers, citations and normative labels
+are localized; the source quotation stays in English. The pipeline does not claim
+to generate a verified Spanish paraphrase. It returns one complete source passage
+and does not synthesize separate rules or convert units. A lexical match is not a
+universal proof of answer relevance, and unfamiliar wording can still abstain or
+need further evaluation. Independent acceptance remains outstanding.
+
+### Repeated results
+
+The complete native `/ask` run `20261029T140839Z` passed **18 of 18** strengthened
+checks: **9 of 9 per language**, with **14 source answers and 4 abstentions**.
+The question file remains byte-for-byte unchanged. The evaluator verifies the
+selected quotation's source span and SHA-256, its expected section/item and
+normative term, the displayed text, localized framing and normal completion.
+Expected sections and patterns remain exclusively in the offline evaluator.
+Every answer receipt explicitly records that answer generation was skipped;
+Spanish query translation has its own model metadata.
+
+Reading all completed responses against the original sources closes the five
+previous findings. `engineering_review.csv` retains their previous status and
+response digest alongside the corrected result:
+
+| Previous finding | Corrected behavior |
+| --- | --- |
+| JSON UTF-8 exception, Spanish | Quotes only the current rule in RFC 8259 section 8.1. Historical specifications are not presented as an exception. |
+| CSV section citation, English | Quotes the escaping rule and example with section 2, item 7, calculated from the source. |
+| robots.txt parsing exceptions, Spanish | Quotes section 2.5 and the 500 KiB minimum without adding unreachable-file exceptions. |
+| robots.txt server errors, Spanish | Quotes the requirement to assume complete disallow while unreachable, including the source's 500-599 range. |
+| robots.txt caching force, Spanish | Preserves SHOULD NOT and its unreachable exception; labels it as a recommendation against, not an absolute prohibition. |
+
+Two additional browser wordings also passed engineering review: a Spanish question
+asking whether cache expiry is obligatory and an English question about escaping
+an embedded CSV quote. The visible answers showed the correct section/item and
+normative labels. Screenshots, visible text and native receipts are retained in
+`ui-corrected` and `receipts`. The older screenshots and failing native replies
+remain intact.
+
+The current suite passes **291 unit tests** with **95.79% core coverage**. New tests
+exercise source-bound quotation rendering, changed source values, normative-force
+preservation, cross-reference and appendix boundaries, complete lists, query
+inflections, short-query coverage and abstention. Scoring tests reject added prose,
+invented sections, changed or missing quotes and mismatched hashes. Lint, formatting
+and static typing pass. The 116-fragment audit and all four persisted-copy fault
+checks pass, with the original index unchanged.
+
+
+After the correction, stopping and starting the application changed its process ID,
+preserved the index byte hash and passed the full fragment audit. Repeating the
+English CSV escaping question returned the identical source answer. The private
+`corrected-restart-evidence.json` records the comparison and its new receipt.

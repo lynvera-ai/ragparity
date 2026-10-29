@@ -19,18 +19,37 @@ An independent source implementation computes all expected boundaries and hashes
 before the Haystack splitter or embedding model runs. RAGParity compares that
 inventory with hashes calculated from the stored fragments.
 
-The application runs a Haystack pipeline: local query embedding, cosine retrieval
-of four fragments, a prompt containing those fragments, and local generation.
-Before retrieval, the same local generation model translates Spanish questions
-into English. English queries are retained unchanged. The original question controls the response language. Empty, oversized
-or numerically altered translations fall back to the original query. Translation
-text and model metadata are retained in each receipt. This guard does not prove
-that every name, unit or negation was translated correctly.
+The Haystack pipeline translates Spanish search queries locally, embeds the query,
+and retrieves four fragments. English queries remain unchanged. Source bytes,
+fragment offsets and revisions are verified before building complete supporting
+passages. Lists and their following constraints remain together.
 
-It uses `nomic-embed-text:v1.5` and `qwen3:1.7b`, with the digests pinned by the first
-pilot. Generation uses temperature 0, seed 42, a 4096-token context and a maximum
-of 256 output tokens. Thinking is disabled. These settings limit resource use;
-model output is still evaluated rather than presumed correct.
+Selection is extractive. A document-local lexical score ranks complete source
+passages using the translated query together with the original question. Keeping
+the original terms helps retain technical identifiers and units. A passage needs
+three distinct content-term matches, or all query terms when fewer than three
+remain after normalization. Insufficient overlap produces an explicit abstention.
+Basic inflections and analysis/parsing search vocabulary are normalized.
+
+The response quotes the selected passage exactly, with its actual section and
+numbered item. Spanish and English questions receive localized headers, citations
+and normative labels; the quoted evidence remains in its original English.
+SHOULD NOT is identified as a recommendation against an action, not an absolute
+prohibition. The answer contains no model-authored explanations or section numbers.
+
+The existing `nomic-embed-text:v1.5` model performs query embedding. The existing
+`qwen3:1.7b` model is used only for Spanish search-query translation, with temperature
+0, seed 42, a 2048-token context, a 160-token cap and thinking disabled. English
+queries do not require generation. The receipt's legacy `generation` field sets
+`skipped` to true for answers and explains that extraction was used; translation
+metadata is recorded separately.
+
+The pipeline supports questions answerable by one source passage. It does not
+synthesize several rules, convert units or provide unverified source translations.
+The overlap threshold is a bounded retrieval heuristic, not proof of semantic
+relevance for every future query. Source hashes, quotation fidelity, lifecycle
+metadata and citation boundaries are checked explicitly. Search translation still
+needs broader independent acceptance for unfamiliar wording and domains.
 
 ## Run
 
@@ -77,15 +96,19 @@ questions, runtime hashes, model records and source manifest before sending any
 request. Only question text goes to `/ask`; expected answers stay in the offline
 scorer. References are checked against the original pinned RFCs.
 
-Each private evaluation directory contains the full responses, retrieved text,
-source identifiers, timings and scoring results. Automatic checks look for
-answer content and a matching retrieved passage. They are an engineering screen,
-not independent human acceptance or a proof that all generated claims are true.
-The final run passed 17 of 18 automatic checks. Reading the complete replies
-identified four factual or citation defects and one wording item needing review.
-These are recorded in `engineering_review.csv`; the independent review form
-remains blank.
-Read `REVIEW.md` for observed results and remaining limitations.
+Each private evaluation directory contains complete responses, retrieved fragments,
+selected source spans, citation metadata, decisions and timings. The strengthened
+offline scorer verifies the actual displayed quotation against pinned source bytes,
+its hash, the expected citation and normative wording. It also detects extra text
+outside the quoted evidence and localized explanation.
+
+The corrected run passed all 18 original questions, nine per language, including
+four abstentions. All five previous findings are closed in the engineering review.
+
+These checks and the engineering review are regressions, not independent human
+acceptance or a proof of universal answer relevance. The previous failing replies
+remain preserved. Read `REVIEW.md` for the before-and-after results and remaining
+limitations. The independent human-review form remains blank.
 
 AnythingLLM was considered first, but its image download failed when the host ran
 out of space. The incomplete download was discarded, the isolated VM was

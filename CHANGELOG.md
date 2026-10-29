@@ -2,6 +2,11 @@
 
 ## 0.2.0b1
 
+- Ground Haystack replies in complete verified source passages, with citations derived
+  from actual headings and list items and localized normative-force labels.
+- Strengthen bilingual evaluation to check displayed quotations, source hashes,
+  sections, conditions and unsupported questions while preserving earlier failures.
+
 - Add a separate local Haystack application with complete public RFCs, independent
   fragment manifests, bilingual evaluation and persisted-index fault checks.
 - Remove decorative separators from project text and local chat display names.

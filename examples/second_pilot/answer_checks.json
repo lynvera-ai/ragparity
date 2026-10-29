@@ -1,0 +1,32 @@
+{
+  "json-encoding": {
+    "section": "8.1",
+    "norm": "MUST"
+  },
+  "json-literals": {
+    "section": "3",
+    "norm": "MUST"
+  },
+  "csv-mime": {
+    "allowed_sections": [
+      "1",
+      "3"
+    ]
+  },
+  "csv-quotes": {
+    "section": "2",
+    "item": "7"
+  },
+  "robots-cache": {
+    "section": "2.4",
+    "norm": "SHOULD NOT"
+  },
+  "robots-limit": {
+    "section": "2.5",
+    "norm": "MUST"
+  },
+  "robots-server-error": {
+    "section": "2.3.1.4",
+    "norm": "MUST"
+  }
+}

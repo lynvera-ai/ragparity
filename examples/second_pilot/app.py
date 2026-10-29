@@ -22,28 +22,14 @@ ROOT = Path(
     )
 ).resolve()
 sys.path.insert(0, str(HERE.parent / "public_pilot"))
+from answer import EvidenceResponder
 from bilingual import LocalQueryTranslator
 from haystack import Pipeline
-from haystack.components.builders import ChatPromptBuilder
 from haystack.components.retrievers.in_memory import InMemoryEmbeddingRetriever
-from haystack.dataclasses import ChatMessage
 from haystack.document_stores.in_memory import InMemoryDocumentStore
 from haystack_integrations.components.embedders.ollama import OllamaTextEmbedder
-from haystack_integrations.components.generators.ollama import OllamaChatGenerator
-from language_tools import language_instruction, prose_language, request_language
+from language_tools import prose_language, request_language
 from manage import MODEL_URL, private_write, request
-
-PROMPT = """Answer the question briefly in its original language, using only the evidence below.
-If evidence is insufficient, say the documents lack enough evidence, in the question language.
-Do not calculate or invent missing facts. Cite the RFC identifier. Use plain punctuation.
-State the rule in words, including relevant exceptions. Do not give examples alone.
-{% for document in documents %}
-Source: {{ document.meta.document_id }}, fragment {{ document.meta.chunk_id }}
-{{ document.content }}
-{% endfor %}
-Question: {{ question }}
-Answer: /no_think
-"""
 
 
 def digest(text: str) -> str:
@@ -55,6 +41,9 @@ def fingerprints() -> dict:
         name: digest((HERE / name).read_text())
         for name in (
             "app.py",
+            "answer.py",
+            "evidence.py",
+            "ranking.py",
             "parity.py",
             "bilingual.py",
             "language_tools.py",
@@ -82,31 +71,11 @@ class Application:
             "retriever",
             InMemoryEmbeddingRetriever(document_store=self.store, top_k=versions["top_k"]),
         )
-        self.pipeline.add_component(
-            "prompt",
-            ChatPromptBuilder(
-                template=[
-                    ChatMessage.from_system("{{ answer_instruction }}"),
-                    ChatMessage.from_user(PROMPT),
-                ],
-                required_variables="*",
-            ),
-        )
-        self.pipeline.add_component(
-            "generator",
-            OllamaChatGenerator(
-                model="qwen3:1.7b",
-                url=MODEL_URL,
-                generation_kwargs=versions["generation_options"],
-                timeout=240,
-                keep_alive=0,
-                think=False,
-            ),
-        )
+        self.pipeline.add_component("responder", EvidenceResponder(ROOT, versions))
         self.pipeline.connect("translation.query", "embedder.text")
+        self.pipeline.connect("translation.query", "responder.query")
         self.pipeline.connect("embedder.embedding", "retriever.query_embedding")
-        self.pipeline.connect("retriever.documents", "prompt.documents")
-        self.pipeline.connect("prompt.prompt", "generator.messages")
+        self.pipeline.connect("retriever.documents", "responder.documents")
         self.lock = threading.Lock()
         self.versions = versions
         self.models = request(MODEL_URL + "/api/tags")
@@ -120,12 +89,9 @@ class Application:
             result = self.pipeline.run(
                 {
                     "translation": {"question": question},
-                    "prompt": {
-                        "question": question,
-                        "answer_instruction": language_instruction(request_language(question)),
-                    },
+                    "responder": {"question": question},
                 },
-                include_outputs_from={"translation", "retriever", "generator"},
+                include_outputs_from={"translation", "retriever"},
             )
             sources = [
                 {
@@ -137,14 +103,22 @@ class Application:
                 }
                 for d in result["retriever"]["documents"]
             ]
-            reply = result["generator"]["replies"][0].text
+            answer = result["responder"]["result"]
+            reply = answer["answer"]
             response = {
                 "id": uuid.uuid4().hex,
                 "answer": reply,
                 "requested_language": request_language(question),
-                "answer_language": prose_language(reply),
+                "answer_language": prose_language(answer["answer_prose"]),
+                "language_scope": "localized explanation; English source quotations",
+                "answer_mode": "source_excerpt",
+                "status": answer["status"],
+                "answer_prose": answer["answer_prose"],
+                "evidence": answer["evidence"],
+                "selection_raw": answer["selection_raw"],
+                "candidates": answer["candidates"],
                 "sources": sources,
-                "generation": result["generator"]["replies"][0].meta,
+                "generation": answer["generation"],
                 "query_translation": result["translation"]["translation"],
                 "retrieval_query": result["translation"]["query"],
                 "versions": self.versions,

@@ -29,12 +29,9 @@
   "split_length": 180,
   "split_overlap": 30,
   "top_k": 4,
-  "generation_options": {
-    "temperature": 0,
-    "seed": 42,
-    "num_predict": 256,
-    "num_ctx": 4096
-  },
-  "flow_version": 3,
-  "query_translation": "Local Spanish-to-English query translation; English queries retained unchanged"
+  "generation_options": null,
+  "flow_version": 7,
+  "query_translation": "Local Spanish-to-English query translation; English queries retained unchanged",
+  "answer_mode": "One complete source passage with derived citations and localized normative labels",
+  "selection_protocol": "Deterministic lexical overlap over verified retrieved source passages; minimum of three distinct query terms, or every term for shorter queries"
 }
