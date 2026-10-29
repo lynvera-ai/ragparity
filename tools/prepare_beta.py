@@ -18,6 +18,19 @@ from pathlib import Path, PurePosixPath
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def source_context() -> dict:
+    if subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT):
+        raise RuntimeError("Commit or set aside working changes before preparing final artifacts")
+    return {
+        "git_head": subprocess.check_output(
+            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
+        ).strip(),
+        "source_date_epoch": subprocess.check_output(
+            ["git", "show", "-s", "--format=%ct", "HEAD"], cwd=ROOT, text=True
+        ).strip(),
+    }
+
+
 def checksum(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
@@ -97,7 +110,7 @@ def inspect_archives(wheel: Path, source: Path, version: str) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output-dir", type=Path, default=ROOT / "dist/beta-0.2.0b1")
+    parser.add_argument("--output-dir", type=Path, default=ROOT / "dist/beta-0.2.0b1-final")
     parser.add_argument(
         "--work-dir", type=Path, help="New private directory for logs and environments"
     )
@@ -111,6 +124,7 @@ def main() -> None:
         or f"## {version}" not in (ROOT / "CHANGELOG.md").read_text()
     ):
         raise ValueError("Project version and changelog must agree on 0.2.0b1")
+    context = source_context()
     output = args.output_dir.resolve()
     output.mkdir(parents=True, exist_ok=False)
     work = (
@@ -126,8 +140,7 @@ def main() -> None:
     env = {k: v for k, v in os.environ.items() if not k.startswith(("PYTHON", "PIP_"))}
     env["PIP_CONFIG_FILE"] = os.devnull
     env["PIP_INDEX_URL"] = "https://pypi.org/simple"
-    epoch = subprocess.check_output(["git", "show", "-s", "--format=%ct", "HEAD"], cwd=ROOT)
-    env["SOURCE_DATE_EPOCH"] = epoch.decode().strip()
+    env["SOURCE_DATE_EPOCH"] = context["source_date_epoch"]
     records = []
 
     def run(label, command, *, cwd=work, expected=0):
@@ -250,6 +263,53 @@ def main() -> None:
     (rebuilt_wheel,) = rebuilt.glob("*.whl")
     if checksum(rebuilt_wheel) != checksum(wheel):
         raise ValueError("Rebuilding the source archive produced a different wheel")
+    source_environment = work / "source-environment"
+    run("source-environment", [sys.executable, "-m", "venv", source_environment])
+    source_binaries = source_environment / ("Scripts" if os.name == "nt" else "bin")
+    source_python = source_binaries / ("python.exe" if os.name == "nt" else "python")
+    source_cli = source_binaries / ("ragparity.exe" if os.name == "nt" else "ragparity")
+    run("source-installer", [source_python, "-m", "pip", "install", "--upgrade", "pip>=26.2,<27"])
+    run("source-direct-install", [source_python, "-m", "pip", "install", source])
+    run("source-dependencies", [source_python, "-m", "pip", "check"])
+    if run("source-version", [source_cli, "version"]).strip() != version:
+        raise ValueError("Source installation version differs")
+    origin = run(
+        "source-origin",
+        [
+            source_python,
+            "-I",
+            "-c",
+            (
+                "from pathlib import Path; import lynvera_ragparity as p; "
+                "print(Path(p.__file__).resolve())"
+            ),
+        ],
+    ).strip()
+    if not Path(origin).is_relative_to(source_environment):
+        raise ValueError("Source installation imported the checkout")
+    source_smoke = work / "source-smoke"
+    source_smoke.mkdir(mode=0o700)
+    run("source-init", [source_cli, "init"], cwd=source_smoke)
+    run("source-pass", [source_cli, "check", "--output", "report.json"], cwd=source_smoke)
+    if json.loads((source_smoke / "report.json").read_text())["status"] != "PASS":
+        raise ValueError("Source installation example did not pass")
+    run(
+        "source-html",
+        [source_cli, "report", "--input", "report.json", "--output", "report.html"],
+        cwd=source_smoke,
+    )
+    source_dependencies = json.loads(
+        run("source-installed", [source_python, "-m", "pip", "list", "--format=json"])
+    )
+    if excluded.intersection(d["name"].casefold() for d in source_dependencies):
+        raise ValueError("Source installation unexpectedly includes optional pilot packages")
+    preserved = {
+        p: checksum(source_smoke / p) for p in ("ragparity.toml", "report.json", "report.html")
+    }
+    run("source-uninstall", [source_python, "-m", "pip", "uninstall", "--yes", "lynvera-ragparity"])
+    run("source-removed", [source_python, "-I", "-c", "import lynvera_ragparity"], expected=1)
+    if any(checksum(source_smoke / p) != value for p, value in preserved.items()):
+        raise ValueError("Uninstall changed user configuration or reports")
     run("postgres-extra", [python, "-m", "pip", "install", str(wheel) + "[postgres]"])
     run("postgres-dependencies", [python, "-m", "pip", "check"])
     driver = run(
@@ -264,23 +324,57 @@ def main() -> None:
             ),
         ],
     ).strip()
-    sums = "".join(f"{checksum(p)}  {p.name}\n" for p in (wheel, source))
+    if source_context() != context:
+        raise RuntimeError("Source commit changed during artifact preparation")
+    notes = output / "RELEASE_NOTES.md"
+    notes.write_bytes((ROOT / "docs/release-notes-0.2.0b1.md").read_bytes())
+    packages = {p.name: checksum(p) for p in (wheel, source)}
+    build_info = output / "BUILD_INFO.json"
+    build_info.write_text(
+        json.dumps(
+            {
+                "version": version,
+                **context,
+                "packages": packages,
+                "release_notes_sha256": checksum(notes),
+                "validated_platform": {
+                    "system": platform.system(),
+                    "architecture": platform.machine(),
+                    "python": platform.python_version(),
+                },
+                "clean_wheel_install": True,
+                "clean_source_install": True,
+                "source_rebuild_identical": True,
+                "independent_acceptance": "PENDING",
+                "publishing_performed": False,
+            },
+            indent=2,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    bundle = (wheel, source, notes, build_info)
+    sums = "".join(f"{checksum(p)}  {p.name}\n" for p in bundle)
     (output / "SHA256SUMS").write_text(sums, encoding="ascii")
+    if source_context() != context:
+        raise RuntimeError("Source commit changed while recording the bundle")
     evidence = {
         "version": version,
         "created_at": datetime.now(UTC).isoformat(),
-        "git_head": subprocess.check_output(
-            ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
-        ).strip(),
-        "git_dirty": bool(subprocess.check_output(["git", "status", "--porcelain"], cwd=ROOT)),
+        **context,
+        "git_dirty": False,
         "platform": platform.platform(),
         "architecture": platform.machine(),
         "python": platform.python_version(),
         "installed_dependencies": installed,
         "optional_postgres_driver": driver,
+        "source_installed_dependencies": source_dependencies,
         "checks": records,
         "inventory": inventory,
-        "artifacts": {p.name: checksum(p) for p in (wheel, source)},
+        "artifacts": packages,
+        "bundle_files": {p.name: checksum(p) for p in bundle},
+        "clean_source_install": True,
+        "uninstall_preserves_user_files": True,
         "source_rebuild_identical": True,
         "independent_acceptance": "PENDING",
         "publishing_performed": False,
@@ -290,7 +384,10 @@ def main() -> None:
     path.chmod(0o600)
     print("Beta artifacts: " + str(output))
     print("Private verification: " + str(path))
-    print("PASS: clean wheel install, CLI checks and identical source rebuild. Nothing published.")
+    print(
+        "PASS: clean wheel/source installs, CLI checks and identical source rebuild. "
+        "Nothing published."
+    )
 
 
 if __name__ == "__main__":

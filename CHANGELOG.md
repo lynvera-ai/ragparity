@@ -2,6 +2,13 @@
 
 ## 0.2.0b1
 
+- Add installation choices, diagnostic and maintenance guides, and a Spanish quick start.
+- Prepare final bundles from a clean fixed commit with copied release notes, build
+  information and checksums; verify direct source installation and safe package removal.
+
+- Organize public documentation around a focused project overview, navigation index,
+  CLI reference, Python integration examples and architecture guide.
+
 - Prepare a distributable beta with a clean-install verification tool, explicit source
   archive contents, first-use instructions, draft release notes and external feedback form.
 - Clarify the supported library/CLI scope and experimental pilot limitations, retaining

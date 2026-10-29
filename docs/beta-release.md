@@ -31,7 +31,9 @@ python -m pytest tests/unit --cov=lynvera_ragparity --cov-fail-under=95
 python tools/prepare_beta.py
 ```
 
-The script creates a new `dist/beta-0.2.0b1` directory. It refuses to replace an
+Commit the intended changes before running the script. It refuses a dirty checkout
+and checks that the source commit stays fixed through the preparation.
+The script creates a new `dist/beta-0.2.0b1-final` directory. It refuses to replace an
 existing directory; use `--output-dir /path/to/new-directory` for another run.
 `--work-dir /path/to/new-private-directory` chooses where logs and environments live.
 That directory must be outside the checkout. It is retained for inspection with
@@ -48,6 +50,8 @@ Checks include:
   empty-scan INCONCLUSIVE, numeric contracts and overwrite refusal.
 - JSON/HTML generation and redacted output using synthetic metadata.
 - A byte-identical wheel rebuilt from the source package with the same build timestamp.
+- Direct source-archive installation in a second clean environment, followed by the
+  initial check, HTML report and uninstall preserving the synthetic user files.
 - Installation and import of the optional PostgreSQL driver after the core-only checks.
 
 The source package uses an explicit content allowlist. The wheel contains the library
@@ -69,26 +73,50 @@ The output directory contains:
 ```text
 lynvera_ragparity-0.2.0b1-py3-none-any.whl
 lynvera_ragparity-0.2.0b1.tar.gz
+RELEASE_NOTES.md
+BUILD_INFO.json
 SHA256SUMS
 ```
 
-Only those three files are candidates for release attachments. Keep environments,
+Only those five files are candidates for release attachments. Keep environments,
 credentials, reports, source documents, chat receipts and raw execution logs private.
 Read [the proposed release notes](release-notes-0.2.0b1.md) and update them if the
 reviewed scope changes. The `dist` directory is ignored by Git.
 
+`RELEASE_NOTES.md` is an exact copy of the reviewed notes in `docs`. `BUILD_INFO.json`
+records the source commit, build timestamp, package/notes hashes and the platform actually
+checked. It contains no private work paths or logs. `SHA256SUMS` covers the four other
+bundle files. This record is not an independent attestation or cryptographic signature.
+
+After obtaining all five files from the intended source, verify the bundle with Python
+from its directory:
+
+```python
+import hashlib
+from pathlib import Path
+
+for line in Path("SHA256SUMS").read_text().splitlines():
+    expected, name = line.split("  ", 1)
+    actual = hashlib.sha256(Path(name).read_bytes()).hexdigest()
+    if actual != expected:
+        raise SystemExit("Checksum mismatch: " + name)
+print("All bundle checksums match")
+```
+
 ## Maintainer publication steps, still pending
 
-The [proposed pull request description](pull-request-0.2.0b1.md) covers the full
-working branch and suggests a review order. PR creation remains with the maintainer.
+The [beta finalization PR description](pull-request-0.2.0b1.md) covers documentation
+and local distribution changes after the maintainer merged PR #1. The current local
+bundle records `a20f2f1` as its source; a different approved release commit requires
+its own rebuilt and verified bundle. Preparation notes do not substitute for that check.
 
-1. Review the working branch and complete the maintainer's pull request to `main`.
+1. Review and integrate any remaining changes into `main` through the maintainer's PR.
 2. Recheck version, changelog, license, notices and the exact intended commit.
 3. Run the local checks above on that commit and review package inventories and hashes.
 4. Confirm the account's permissions and any external automation billing settings before
    running hosted jobs. This preparation uses local checks and does not require them.
 5. Create the reviewed version tag and a GitHub prerelease using maintainer credentials.
-   Attach the two packages and `SHA256SUMS`, then copy the proposed notes. Those actions
+   Attach the verified five-file bundle and copy the proposed notes. Those actions
    require a separate publication instruction and are not performed by the script.
 6. Verify installation from the actual release download and invite external beta review.
 

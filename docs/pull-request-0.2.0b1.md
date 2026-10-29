@@ -1,67 +1,74 @@
-# Pull request preparation
+# Beta finalization pull request
 
-This file is a proposed description for the maintainer's pull request from
-`feat/second-local-rag-pilot` into `main`. No pull request or release is created
-by this preparation. Review the entire branch; the current base contains only
-the initial repository files.
+Suggested title:
 
-## Proposed title
+```text
+Finalize 0.2.0b1 documentation and local distribution checks
+```
 
-Add RAGParity 0.2.0b1 metadata and numeric validation toolkit
+Copy the description below for the maintainer's PR from
+`feat/second-local-rag-pilot` into `main`. It describes the changes after
+[the initial beta integration](https://github.com/lynvera-ai/ragparity/pull/1).
+PR creation, merging and publication remain with the maintainer.
 
-## Proposed description
+## Description
 
-RAG indexes can retain outdated or deleted records, omit documents or contain
-inconsistent fragments. This adds a local library and command-line tool that compare
-authoritative metadata with index metadata and report explicit evidence. Structured
-numeric checks compare values only when their source, metric, unit and period agree.
+Make the 0.2.0b1 beta easier to install, understand and verify before publication.
+The project now has a focused overview, a documentation entry point and guides for
+CLI use, Python integration, architecture, diagnostics and installation maintenance.
+A Spanish quick start complements the English reference documentation.
 
-The beta includes memory and optional PostgreSQL/pgvector readers, completion and
-fragment manifests, bounded scans, execution limits, redaction, and versioned JSON
-and local HTML reports. Source packages, installation instructions, release notes
-and a clean-install verification tool are included. No model or hosted service is
-needed for the core example.
+Distribution preparation now requires a clean fixed commit. It verifies wheel and
+source installation separately and produces a reviewable bundle containing both
+packages, release notes, build information and SHA-256 checksums. The core checker,
+public runtime contracts and experimental chat behavior are unchanged.
 
-Open WebUI and Haystack examples are experimental and have separate setup requirements.
-The varied Haystack evaluation remains 22/46, including 24 preserved failures.
-This release does not certify complete model answers or production readiness.
+### Changes
+
+- Explain installation choices, tested/pending platforms, first-use results and
+  troubleshooting; document updates, rollback and package removal without deleting user data.
+- Add CLI, Python and architecture references, navigation and a Spanish first-use guide.
+- Verify clean wheel/source installs, an identical source rebuild, the optional database
+  driver and uninstall preserving synthetic configuration and reports.
+- Reject uncommitted source changes and record the source commit in `BUILD_INFO.json`.
+  Copy the reviewed notes and hash all four bundle files in `SHA256SUMS`.
+- Keep beta limitations explicit, including the 24 failures in the experimental
+  Haystack evaluation and pending independent user acceptance.
 
 ### Validation
 
-- Local macOS ARM64, Python 3.12.9: 303 unit tests, 95.79% core coverage.
-- Seven PostgreSQL 17/pgvector integration tests passed with a SELECT-only account
-  in a disposable local container; temporary resources were removed.
-- Lint, formatting and core static types passed.
-- Wheel and source installation passed in separate clean environments outside the
-  checkout. CLI status codes, numeric contracts and JSON/HTML output were exercised.
-- Source rebuild produced an identical wheel within the same build environment.
-- The final beta candidate dependency audit found no known vulnerabilities after
-  updating the clean environment's installer. Details are in `docs/beta-validation.md`.
+The existing local candidate was built from `a20f2f1e2e91aa2a8515b919364ac90cc729cbbf`.
+These results describe that candidate, not a future merge commit:
 
-Remote workflows are skipped for the local-only preparation commits. Historical CI
-does not constitute a run on the current commit. Windows/Linux clean installation
-and independent user acceptance remain pending. Rebuild and verify distribution
-files from the final approved commit before publishing.
+- 303 unit tests passed with 95.79% core coverage; the suite also passed against
+  the installed final wheel and its freshly resolved dependencies.
+- All 37 distribution checks passed on macOS ARM64 with Python 3.12.9.
+- Wheel/source metadata, documentation examples, archive contents and all four
+  bundle hashes were checked. The copied notes match the source notes exactly.
+- The audit of 16 runtime dependencies found no known vulnerabilities.
+- Earlier seven PostgreSQL/pgvector integration checks remain evidence for the
+  unchanged core; they were not rerun for these documentation changes.
 
-### Compatibility and scope
+Private environments, raw reports and execution logs are excluded from the public
+bundle and Git. Hosted workflows are skipped for the preparation commits; no remote
+CI result is claimed for this head. No paid service or new hosted automation is used.
 
-The package version is 0.2.0b1. Report writers emit schema 2.0; readers also accept
-schema 1.0. Public beta contracts can change with documented migration steps.
-No tag, GitHub Release or package-index upload is included in this pull request.
+### Scope and follow-up
 
-## Suggested review order
+The supported beta scope is deterministic metadata and structured numeric validation.
+The Haystack fresh evaluation remains 22/46; chat examples are experimental. Windows
+and Linux clean-install checks and independent application acceptance remain pending.
+These limits must remain visible; broader acceptance and the 1.0 gates are separate work.
 
-1. `docs/contracts.md`, `docs/audits.md`, core models and checker semantics.
-2. Database readers, execution limits, redaction and report rendering.
-3. Unit/integration tests, dependency bounds and existing workflow changes.
-4. Packaging allowlist, `tools/prepare_beta.py`, installation and validation records.
-5. Experimental example setup, retained evaluation failures and scope limitations.
+### Publication handoff
 
-The pre-merge cleanup normalizes line endings in two blank review forms without
-changing their parsed rows. Existing workflow checks now include the distribution
-tool, and wheel smoke installation uses the same installer floor as the beta guide.
-Workflow triggers and permissions are unchanged; no hosted job was started.
+- [ ] Review the effective branch rules and any required checks, then review and merge
+  this PR through the maintainer's process.
+- [ ] Select the approved release commit, review final note wording/versioned links,
+  and rebuild the five-file bundle from that clean commit into a new output directory.
+- [ ] Verify version 0.2.0b1, license/notices, `BUILD_INFO.json` source identity and all
+  checksums. Do not label the existing a20f2f1 bundle as built from a later commit.
+- [ ] When publication is separately authorized, create `v0.2.0b1` and a GitHub prerelease,
+  attach the verified bundle, then test installation from the actual download.
 
-The maintainer still owns PR creation, review, merging and publication. After merging,
-follow `docs/beta-release.md` on the intended commit and obtain independent feedback
-using `docs/beta-feedback.md`.
+No PR, merge, tag, GitHub Release or PyPI upload is performed by this preparation.

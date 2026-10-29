@@ -2,6 +2,8 @@
 
 Observed on October 29, 2026. These are maintainer checks, not independent acceptance.
 The core checker and the experimental chat runtimes were not changed.
+The table records the initial beta preparation; later documentation and final-bundle
+verification are recorded separately below and in each bundle's `BUILD_INFO.json`.
 
 | Check | Observed result |
 | --- | --- |
@@ -35,7 +37,7 @@ standalone Compose executable installed on this host.
 
 The private distribution work directory contains `verification.json`, actual dependency
 versions, archive inventories and per-command logs. Final artifacts and SHA-256 sums
-are under `dist/beta-0.2.0b1`. Logs, environments and synthetic execution reports are
+from the initial preparation are under `dist/beta-0.2.0b1`. Logs, environments and synthetic execution reports are
 excluded from release attachments and Git. See [the build guide](beta-release.md).
 
 The source archive includes an explicit project-file allowlist. Wheel notices match
@@ -53,3 +55,22 @@ The Haystack evidence remains 22 passes and 24 failures from 46 fresh questions.
 Source and runtime fingerprints and the frozen evaluation seal were preserved.
 See [the full evaluation](../examples/second_pilot/FRESH_REVIEW.md). A consistent index
 and a faithful quotation do not establish complete answer relevance.
+
+## Final bundle with updated documentation
+
+The final preparation targets `dist/beta-0.2.0b1-final` and preserves the earlier
+candidate directory. Its source commit is recorded in `BUILD_INFO.json`; it is not a
+tag or a published release. The notes, checksum file and build record travel with
+the wheel and source archive.
+
+The local verifier rejects uncommitted changes before creating output, then checks that
+the source revision remains fixed. It installs the wheel and source archive in two
+separate fresh environments outside the checkout, checks the optional PostgreSQL driver,
+rebuilds an identical wheel and tests uninstall without changing the synthetic user
+configuration or reports. Logs and installed dependency versions remain private.
+
+The documentation now provides installation choices, platform evidence, troubleshooting,
+maintenance and a Spanish first-use guide. Local example checks validate the documented
+output, intentional mismatch and report rendering. The unit checks and dependency audit
+are rerun for the final candidate. The database results above remain prior validation of
+the unchanged core; no new platform or independent acceptance is implied.
