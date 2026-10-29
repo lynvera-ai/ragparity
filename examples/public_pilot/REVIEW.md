@@ -359,3 +359,109 @@ and the native receipts. The final read-only deployment and manifest are retaine
 preserved. The source/index audit still passes for nineteen documents and fragments.
 This establishes acceptance for the bounded pilot vocabulary and tested questions;
 it does not establish arbitrary Spanish understanding or 1.0 readiness.
+
+### New-question evaluation and update/recovery exercises
+
+On October 28, 2026 local time (October 29 UTC), evaluation
+`20261029T002903Z-32dfcb04` submitted **32 new prompts**, sixteen in each language, through
+the installed native Open WebUI HTTP chat API. This was an engineering evaluation
+created alongside the implementation; it was not independent human acceptance or a
+new browser-interface run. The sixteen semantic cases are paired translations, not
+thirty-two independent samples.
+
+Before the first request, the driver wrote and sealed the questions, expected dispositions,
+source-derived numeric references, pinned versions and unchanged runtime hashes. The
+frozen protocol SHA-256 is
+`ffa393baf2079815bf1d92cb480f4ba8295067c5c48f909a295538f9ff534f6b`.
+Reference values came from independently verified cached PostgreSQL SGML and NASA HTML,
+not retrieved index text. Requests contained only the ordinary native mode/transport
+identifiers and user question. No expected unit, value, metric, source ID or support flag
+was sent to the chat. Code and model selection were not tuned during the evaluation.
+
+| Category | Correct / total |
+| --- | --- |
+| Supported extraction questions | 18 / 20 |
+| Required abstentions | 6 / 10 |
+| Required clarification | 2 / 2 |
+| English overall | 13 / 16 |
+| Spanish overall | 13 / 16 |
+| Combined | **26 / 32** |
+| Operational request errors | 0 |
+
+Three measurement-selection defects occurred in both languages:
+
+| Requested measurement | Observed response | Required behavior |
+| --- | --- | --- |
+| Mercury solar day | `1407.6 hours`, `rotation-period` | `4222.6 hours`, `length-of-day` |
+| Explicitly listed Jupiter equatorial radius | `142984 km`, `diameter` | Abstain: no radius fact in these excerpts |
+| Mars maximum temperature | `-65 C`, `mean-temperature` | Abstain: no maximum-temperature fact in these excerpts |
+
+The model selected valid retrieved facts that did not answer the requested measurement.
+A citation and matching source unit did not prevent these semantic errors. These remain
+open beta defects; the earlier repeated reference-set success must not be generalized
+into an accuracy claim. The six FAIL observations are preserved. An offline review
+strengthened complete-null-field validation for abstentions and confirmed that all 32
+verdicts remained unchanged without sending additional generation requests.
+
+Private evaluation evidence is retained at `PILOT_HOME/evaluations/20261029T002903Z-32dfcb04/`,
+including `frozen.json`, its checksum, executed code snapshots, requests, responses,
+native receipts, `report.json` and the offline review. `new_review.csv` provides 32 blank
+review rows; no independent reviewer verdict has been supplied. These questions become
+regression cases after this run; future independent evaluation needs additional cases.
+
+#### Operational scope and outcomes
+
+Final operational run **`20261029T004802Z-0b77ab8f932e` passed all 29 checks**.
+Operations used disposable attributed public copies with two paragraph fragments whose
+expected offsets and hashes were computed before ingestion. Original source documents
+and the chat's nineteen-file allowlist were not changed. Operational filenames and
+projections occupy a separate scope; the auditor retained SELECT-only metadata access.
+
+| Exercise | Observed acceptance |
+| --- | --- |
+| Initial two-fragment upload | PASS |
+| Authoritative source changes before reindex | Expected FAIL detected: version/content/fragment mismatch |
+| Content update and reindex | PASS |
+| One deliberately removed test fragment | Expected FAIL detected: `MISSING_CHUNK` |
+| Rebuild through the content-update API | PASS |
+| Source deletion before index removal | Expected FAIL detected: `DELETED_PRESENT` |
+| File deletion and re-upload recovery | PASS; the missing-fragment interval was detected |
+| Coordinated application and database backup | PASS; hashes retained for 133 backup files |
+| Restore into a new application volume and PostgreSQL cluster | PASS; original volumes were not mounted |
+| Original nineteen-fragment audit after restore | PASS |
+| Restored files, five saved chats and native function | PASS |
+| New confirmed file written in the restored stack | PASS |
+| Abrupt termination of both disposable services | Recovery PASS; PostgreSQL logs contain automatic crash recovery |
+| Original corpus and new fragment hash after abrupt restart | PASS |
+| Native retrieval/generation after restore and restart | PASS; sourced Mars mean temperature |
+| Return to original services and delete only test copies | PASS; original nineteen-fragment audit and native answer passed |
+
+WebUI was stopped before copying its complete data directory, including SQLite transaction
+files. PostgreSQL was dumped while application writes were quiesced. The backup also
+retained private authentication/configuration, allowlist and deployed code. Restoration
+used a generated project, new named volumes and a different PostgreSQL system identifier;
+container labels and mounts were checked before abrupt termination. Images, model cache,
+loopback ports and network restrictions were retained. Native code was mounted read-only
+from the backup. Model weights were not copied, so this is recovery using the existing
+pinned model/runtime installation, not proof of offline recovery on a fresh machine.
+
+The first diagnostic run `20261029T003657Z-e31f9c673310` restored the application successfully
+but its canary check compared preliminary upload-response metadata and stopped. Reading
+the stopped clone's complete SQLite database and transaction files confirmed the correct
+committed file. The revised check reads the confirmed file record. Run
+`20261029T004057Z-ab2f7d232b32` then passed 26 controls; the final run added full original-corpus
+audits and verification of the canary's actual stored fragment hash. Diagnostic runs,
+backups and stopped clones remain preserved; no earlier failure was overwritten.
+
+Final private evidence is at `PILOT_HOME/operations/20261029T004802Z-0b77ab8f932e/`, including
+source manifests, per-stage audit reports, journal, code/provenance copies, backup manifest,
+recovery logs and report. Backups contain credentials and chat data and are not committed.
+All live audit reports keep `snapshot_validated=false`; the exercise does not manufacture
+immutable production audit attestations. It tests controlled sequencing and recovery,
+not multi-day reliability or arbitrary concurrent writers.
+
+The toolkit suite passes **224 unit tests**, including safeguards against mounting primary
+volumes, mutating uncreated file IDs and accepting invalid abstentions. Core coverage is
+95.79%; lint, formatting and static typing checks pass. Production readiness still needs
+the three measurement defects resolved, independent acceptance and sustained operational
+validation. No 1.0 tag or release was created.

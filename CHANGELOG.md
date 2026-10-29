@@ -2,6 +2,11 @@
 
 ## 0.2.0b1
 
+- Add a frozen bilingual exploratory evaluation through the native chat API and a blank
+  human-review form; preserve newly observed measurement-selection defects.
+- Exercise public-copy updates, deletion, partial-index repair, coordinated backup,
+  restoration into isolated volumes and abrupt application/database restart recovery.
+
 - Support Spanish questions and localized responses in the grounded chat, with bounded
   bilingual query normalization, unchanged source quotes and multilingual scope abstention.
 - Add Spanish browser-reference prompts and language-specific evidence review without

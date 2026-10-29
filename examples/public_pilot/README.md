@@ -270,6 +270,65 @@ The engineering review of the two inconclusive answers is in [REVIEW.md](REVIEW.
 including the subsequent expanded-run observations. A changed schema and a larger
 retrieval scope prevent treating before/after counts as a controlled accuracy comparison.
 
+## New bilingual evaluation and recovery exercises
+
+`new_questions.json` defines sixteen new question pairs, thirty-two prompts in total.
+They cover previously untested planet/measurement combinations, new PostgreSQL phrasing,
+unsupported measurements and clarification. `new_evaluation.py` fixes the questions,
+independent references, runtime hashes and pinned versions before the first request.
+References are read from verified authoritative source bytes, never from the index.
+Only question text and ordinary transport identifiers enter the native chat HTTP API.
+The offline scorer checks the native response against its private receipt and reference.
+This is API acceptance evidence, not another browser run or independent human review.
+
+```bash
+.venv/bin/python examples/public_pilot/new_evaluation.py
+.venv/bin/python examples/public_pilot/operations.py
+```
+
+Evaluation runs stay at `PILOT_HOME/evaluations/<run-id>/`, including the sealed protocol,
+code copies, exact requests, responses, receipts and report. Exit status 1 means an answer
+acceptance failure and 2 an operational error. The current new-question result is **26/32**:
+the selector confuses Mercury's solar day with its sidereal rotation, Jupiter's radius
+with diameter, and Mars's maximum temperature with its mean, in both languages. These
+are open beta defects. The runtime was not tuned during this evaluation. See
+[REVIEW.md](REVIEW.md) for the recorded cases. Use the blank [new_review.csv](new_review.csv)
+for independent human review; no reviewer decisions have been filled automatically.
+
+The operational runner creates its own public copy with two independently specified
+paragraph fragments. Its files use `rpo-operations-` names and never enter the nineteen-file
+chat allowlist or the original metadata-audit scope. Source expectations precede ingestion.
+It checks stale content, updated text, reindexing, an explicitly removed test fragment,
+delete propagation and recovery by re-upload. Indexed-text edits use the application's
+content-update endpoint; that endpoint does not replace the originally uploaded bytes.
+
+The runner then pauses this pilot's WebUI to copy its complete data directory, including
+SQLite transaction files, and dumps PostgreSQL while application writes are quiesced.
+The backup includes the private runtime configuration, authentication material, allowlist
+and deployed code. It restores into a generated recovery project with **new named volumes**,
+validates a different PostgreSQL cluster identity, and checks the original corpus, files,
+chats and function. It writes a new canary file, abruptly stops only the verified recovery
+containers, restarts them and checks committed data, fragment hashes and native answers.
+The original containers and volumes are retained and restarted in `finally`; disposable
+original-stack test files are deleted by their run-created IDs only. Recovery containers
+and volumes remain stopped for inspection. No volume-removal command is issued.
+
+This exercise temporarily interrupts the local UI and uses its existing loopback ports.
+Do not run it alongside other evaluations or interactive edits. One operational runner
+is allowed at a time. It uses the cached pinned images and existing native model server;
+no new service provider, public port or paid dependency is configured. Model weights are
+not copied into the backup: restoration requires the existing pinned runtime/model cache
+or their verified reinstallation. Backups and clone configuration contain credentials
+and chat data; keep them private outside Git. Reports, source/code copies, checksums and
+journals stay at `PILOT_HOME/operations/<run-id>/`.
+
+If the runner itself is forcibly interrupted, use its private `recovery-compose.json`
+and generated project name from `provenance.json` to stop only that recovery project,
+with `manage.docker_environment()` selecting the isolated `ragparity-public` engine.
+Then run `manage.py start` to bring back the retained original volumes. Do not copy a
+backup over the original volumes. These controlled tests do not replace sustained use,
+independent review or a production disaster-recovery procedure.
+
 ## Human review before 1.0
 
 Use `review.csv` and `nasa_review.csv` as review forms. The two original PostgreSQL failures

@@ -139,7 +139,8 @@ The [synthetic catalog pilot](examples/catalog/README.md) demonstrates six inges
 answer scenarios without model APIs. The [local public-document pilot](examples/public_pilot/README.md)
 installs Open WebUI, local models and pgvector with pinned PostgreSQL and planetary documentation,
 real retrieval, a grounded native chat mode for English and Spanish questions, and
-independently scored browser observations.
+independently scored browser observations. It also includes a frozen new-question
+evaluation and isolated update/backup/recovery exercises.
 [Scale measurements](docs/performance.md) document
 measured resources and their limits. Report consumers should review the
 [migration notes](docs/releases.md#migrating-from-01) before upgrading from 0.1.
