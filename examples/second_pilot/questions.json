@@ -1,0 +1,115 @@
+[
+  {
+    "id": "json-encoding",
+    "document": "rfc8259",
+    "questions": {
+      "es": "Según RFC 8259, ¿qué codificación debe usar JSON intercambiado entre sistemas que no pertenecen a un ecosistema cerrado?",
+      "en": "According to RFC 8259, what encoding must JSON exchanged outside a closed ecosystem use?"
+    },
+    "answer_patterns": [
+      "UTF.?8"
+    ],
+    "evidence_pattern": "MUST be encoded using UTF-8"
+  },
+  {
+    "id": "json-literals",
+    "document": "rfc8259",
+    "questions": {
+      "es": "Según RFC 8259, ¿cuáles son los tres nombres literales de JSON y deben escribirse en minúsculas?",
+      "en": "According to RFC 8259, what are the three literal names in JSON, and must they be lowercase?"
+    },
+    "answer_patterns": [
+      "false",
+      "true",
+      "null",
+      "lowercase|minúscul"
+    ],
+    "evidence_pattern": "literal names MUST be lowercase"
+  },
+  {
+    "id": "csv-mime",
+    "document": "rfc4180",
+    "questions": {
+      "es": "¿Qué tipo MIME registra RFC 4180 para los archivos CSV?",
+      "en": "What MIME type does RFC 4180 register for CSV files?"
+    },
+    "answer_patterns": [
+      "text/csv"
+    ],
+    "evidence_pattern": "text/csv"
+  },
+  {
+    "id": "csv-quotes",
+    "document": "rfc4180",
+    "questions": {
+      "es": "Según RFC 4180, ¿cómo se escapa una comilla doble dentro de un campo CSV encerrado entre comillas dobles?",
+      "en": "According to RFC 4180, how is a double quote escaped inside a double-quoted CSV field?"
+    },
+    "answer_patterns": [
+      "another double quote|doubl(?:ing|ed)|otra comilla|duplic|dos comillas"
+    ],
+    "evidence_pattern": "escaped by preceding it with\\s+another double quote"
+  },
+  {
+    "id": "robots-cache",
+    "document": "rfc9309",
+    "questions": {
+      "es": "Según RFC 9309, ¿por cuántas horas no debería superarse el uso de una copia de robots.txt en caché y cuál es la excepción?",
+      "en": "According to RFC 9309, after how many hours should a cached robots.txt normally stop being used, and what is the exception?"
+    },
+    "answer_patterns": [
+      "24",
+      "unreachable|inaccesible|inalcanzable|no.*acces|no.*alcanz"
+    ],
+    "evidence_pattern": "more than 24 hours, unless the\\s+robots.txt file is unreachable"
+  },
+  {
+    "id": "robots-limit",
+    "document": "rfc9309",
+    "questions": {
+      "es": "Según RFC 9309, ¿cuál es el límite mínimo de análisis de robots.txt en kibibytes?",
+      "en": "According to RFC 9309, what is the minimum robots.txt parsing limit in kibibytes?"
+    },
+    "answer_patterns": [
+      "500",
+      "KiB|kibibyte"
+    ],
+    "evidence_pattern": "limit MUST be at least 500 kibibytes"
+  },
+  {
+    "id": "robots-server-error",
+    "document": "rfc9309",
+    "questions": {
+      "es": "Según RFC 9309, si robots.txt no se puede alcanzar por errores del servidor HTTP 500-599, ¿qué debe asumir el rastreador?",
+      "en": "According to RFC 9309, if robots.txt is unreachable due to HTTP 500-599 server errors, what must a crawler assume?"
+    },
+    "answer_patterns": [
+      "complete disallow|disallow all|prohibici.n completa|denegaci.n completa|bloque|denegar|no.*acced|acceso.*prohib|prohibir"
+    ],
+    "evidence_pattern": "MUST assume complete disallow"
+  },
+  {
+    "id": "unsupported-mars",
+    "document": null,
+    "questions": {
+      "es": "Según estos documentos, ¿cuál es la temperatura máxima de Marte?",
+      "en": "According to these documents, what is the maximum temperature of Mars?"
+    },
+    "answer_patterns": [
+      "insufficient evidence|evidencia insuficiente|no.*informaci.n|not.*contain|no.*contienen|no.*mencion|not.*provide"
+    ],
+    "evidence_pattern": null
+  },
+  {
+    "id": "unsupported-password",
+    "document": null,
+    "questions": {
+      "es": "Según estos documentos, ¿cuál es mi contraseña de la base de datos de producción?",
+      "en": "According to these documents, what is my production database password?"
+    },
+    "answer_patterns": [
+      "insufficient evidence|evidencia insuficiente|no.*informaci.n|not.*contain|no.*contienen|no.*mencion|not.*provide"
+    ],
+    "evidence_pattern": null
+  }
+]

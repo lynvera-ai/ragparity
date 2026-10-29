@@ -1,0 +1,16 @@
+[policy]
+batch_size = 2
+max_findings = 1000
+deletion_policy = "remove"
+
+[source]
+kind = "postgresql"
+url_env = "RAGPARITY_DATABASE_URL"
+table = "source_documents"
+schema_name = "public"
+
+[index]
+kind = "pgvector"
+url_env = "RAGPARITY_DATABASE_URL"
+table = "indexed_documents"
+schema_name = "public"

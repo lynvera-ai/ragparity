@@ -1,0 +1,27 @@
+# Lynvera RAGParity: metadata only; no document content or credentials.
+# Identity is (source_id, document_id, collection).
+[policy]
+batch_size = 1000
+max_findings = 1000
+deletion_policy = "remove" # remove, tombstone, or ignore
+
+[source]
+kind = "memory"
+[[source.records]]
+source_id = "catalog"
+document_id = "product-1"
+source_version = "1"
+content_hash = "sha256:synthetic-example"
+collection = "products"
+is_deleted = false
+
+[index]
+kind = "memory"
+[[index.records]]
+source_id = "catalog"
+document_id = "product-1"
+source_version = "1"
+content_hash = "sha256:synthetic-example"
+collection = "products"
+is_deleted = false
+# indexed_at is optional and must include a timezone if supplied.

@@ -1,0 +1,455 @@
+{
+  "name": "Fresh bilingual breadth evaluation",
+  "version": 1,
+  "independent_human_acceptance": false,
+  "policy": "Freeze before first request. Do not modify runtime or expectations after observing results.",
+  "excluded_prior_topics": [
+    "JSON encoding and literal names",
+    "CSV MIME type and quote escaping",
+    "robots.txt caching, parsing size and HTTP 5xx unreachable behavior"
+  ],
+  "cases": [
+    {
+      "id": "object-unique-names",
+      "category": "normative-force",
+      "expected": "ANSWERED",
+      "document": "rfc8259",
+      "questions": {
+        "es": "Según RFC 8259, ¿la unicidad de los nombres dentro de un objeto JSON es una recomendación o una obligación absoluta?",
+        "en": "Under RFC 8259, is uniqueness of names inside a JSON object a recommendation or an absolute requirement?"
+      },
+      "answer_patterns": [
+        "names within an object SHOULD be unique"
+      ],
+      "evidence_pattern": "names within an object SHOULD be unique",
+      "checks": {
+        "section": "4",
+        "norm": "SHOULD"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "duplicate-members",
+      "category": "interoperability",
+      "expected": "ANSWERED",
+      "document": "rfc8259",
+      "questions": {
+        "es": "¿Garantiza RFC 8259 que todos los receptores traten igual los nombres duplicados de un objeto JSON?",
+        "en": "Does RFC 8259 guarantee that all receivers handle duplicate JSON object names in the same way?"
+      },
+      "answer_patterns": [
+        "not\\s+unique",
+        "unpredictable"
+      ],
+      "evidence_pattern": "When the names within an object are not\\s+unique, the behavior.*?unpredictable",
+      "checks": {
+        "section": "4"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "mixed-array-types",
+      "category": "negative-rule",
+      "expected": "ANSWERED",
+      "document": "rfc8259",
+      "questions": {
+        "es": "¿Exige RFC 8259 que todos los valores de un array JSON tengan el mismo tipo?",
+        "en": "Does RFC 8259 require all values in a JSON array to have the same type?"
+      },
+      "answer_patterns": [
+        "no requirement.*?same\\s+type"
+      ],
+      "evidence_pattern": "no requirement.*?same\\s+type",
+      "checks": {
+        "section": "5"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "leading-zero-number",
+      "category": "concrete-example",
+      "expected": "ANSWERED",
+      "document": "rfc8259",
+      "questions": {
+        "es": "Según RFC 8259, ¿puede un número JSON como 012 comenzar con ceros adicionales?",
+        "en": "Under RFC 8259, may a JSON number such as 012 start with extra leading zeros?"
+      },
+      "answer_patterns": [
+        "Leading zeros are not\\s+allowed"
+      ],
+      "evidence_pattern": "Leading zeros are not\\s+allowed",
+      "checks": {
+        "section": "6"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "nonfinite-numbers",
+      "category": "concrete-example",
+      "expected": "ANSWERED",
+      "document": "rfc8259",
+      "questions": {
+        "es": "En RFC 8259, ¿se permiten Infinity y NaN como valores numéricos JSON?",
+        "en": "In RFC 8259, are Infinity and NaN permitted as JSON numeric values?"
+      },
+      "answer_patterns": [
+        "Infinity and NaN",
+        "not permitted"
+      ],
+      "evidence_pattern": "Infinity and NaN.*?not permitted",
+      "checks": {
+        "section": "6"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "string-escape-classes",
+      "category": "list-completeness",
+      "expected": "ANSWERED",
+      "document": "rfc8259",
+      "questions": {
+        "es": "¿Qué clases de caracteres de una cadena JSON exige escapar RFC 8259, además de delimitar la cadena con comillas?",
+        "en": "Which classes of characters inside a JSON string does RFC 8259 require to be escaped, beyond delimiting the string with quotes?"
+      },
+      "answer_patterns": [
+        "quotation mark",
+        "reverse solidus",
+        "control characters",
+        "U\\+0000\\s+through U\\+001F"
+      ],
+      "evidence_pattern": "characters that MUST be escaped:.*?U\\+001F",
+      "checks": {
+        "section": "7",
+        "norm": "MUST"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "parser-generator-contrast",
+      "category": "multiple-passages",
+      "expected": "ANSWERED",
+      "document": "rfc8259",
+      "questions": {
+        "es": "Compara las reglas de RFC 8259: ¿puede un parser aceptar extensiones no JSON y puede un generador producir texto que no cumpla la gramática JSON?",
+        "en": "Compare the RFC 8259 rules: may a parser accept non-JSON extensions, and may a generator produce text that does not conform to the JSON grammar?"
+      },
+      "answer_patterns": [
+        "MAY accept non-JSON forms or extensions",
+        "resulting text MUST\\s+strictly conform"
+      ],
+      "evidence_pattern": "MAY accept non-JSON forms or extensions.*?resulting text MUST\\s+strictly conform",
+      "checks": {
+        "allowed_sections": [
+          "9",
+          "10"
+        ],
+        "required_sections": [
+          "9",
+          "10"
+        ]
+      },
+      "rationale": "A complete answer needs both parser permission in section 9 and generator obligation in section 10. One half alone is incomplete."
+    },
+    {
+      "id": "csv-record-separator",
+      "category": "format",
+      "expected": "ANSWERED",
+      "document": "rfc4180",
+      "questions": {
+        "es": "¿Qué salto de línea delimita cada registro CSV en la descripción de RFC 4180?",
+        "en": "Which line break delimits each CSV record in the description in RFC 4180?"
+      },
+      "answer_patterns": [
+        "Each record",
+        "line\\s+break \\(CRLF\\)"
+      ],
+      "evidence_pattern": "Each record.*?line\\s+break \\(CRLF\\)",
+      "checks": {
+        "section": "2",
+        "item": "1"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "csv-last-line",
+      "category": "optional-behavior",
+      "expected": "ANSWERED",
+      "document": "rfc4180",
+      "questions": {
+        "es": "Según RFC 4180, ¿es obligatorio terminar el último registro CSV con un salto de línea?",
+        "en": "According to RFC 4180, is an ending line break mandatory for the last CSV record?"
+      },
+      "answer_patterns": [
+        "last record.*?may or may not have an ending line"
+      ],
+      "evidence_pattern": "last record.*?may or may not have an ending line",
+      "checks": {
+        "section": "2",
+        "item": "2"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "csv-header-presence",
+      "category": "optional-behavior",
+      "expected": "ANSWERED",
+      "document": "rfc4180",
+      "questions": {
+        "es": "En RFC 4180, ¿la cabecera CSV es opcional y dónde aparece cuando existe?",
+        "en": "In RFC 4180, is the CSV header optional, and where does it appear when present?"
+      },
+      "answer_patterns": [
+        "optional header line",
+        "first line"
+      ],
+      "evidence_pattern": "optional header line appearing as the first line",
+      "checks": {
+        "section": "2",
+        "item": "3"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "csv-space-handling",
+      "category": "data-preservation",
+      "expected": "ANSWERED",
+      "document": "rfc4180",
+      "questions": {
+        "es": "¿Permite RFC 4180 ignorar los espacios que forman parte de un campo CSV?",
+        "en": "Does RFC 4180 allow spaces that are part of a CSV field to be ignored?"
+      },
+      "answer_patterns": [
+        "Spaces are considered part",
+        "should not be ignored"
+      ],
+      "evidence_pattern": "Spaces are considered part.*?should not be ignored",
+      "checks": {
+        "section": "2",
+        "item": "4"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "csv-field-counts",
+      "category": "concrete-example",
+      "expected": "ANSWERED",
+      "document": "rfc4180",
+      "questions": {
+        "es": "Si una fila CSV tiene 2 campos y otra tiene 3, ¿qué recomienda RFC 4180 sobre mantener la cantidad de campos entre filas?",
+        "en": "If one CSV row has 2 fields and another has 3, what does RFC 4180 say about keeping field counts consistent across rows?"
+      },
+      "answer_patterns": [
+        "Each line should contain the same\\s+number of fields"
+      ],
+      "evidence_pattern": "Each line should contain the same\\s+number of fields",
+      "checks": {
+        "section": "2",
+        "item": "4"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "robots-case-matching",
+      "category": "normative-force",
+      "expected": "ANSWERED",
+      "document": "rfc9309",
+      "questions": {
+        "es": "Al comparar rutas como /PUBLIC y /public, ¿qué recomienda RFC 9309 sobre distinguir mayúsculas y minúsculas?",
+        "en": "When comparing paths such as /PUBLIC and /public, what does RFC 9309 recommend about case sensitivity?"
+      },
+      "answer_patterns": [
+        "matching\\s+SHOULD be case sensitive"
+      ],
+      "evidence_pattern": "matching\\s+SHOULD be case sensitive",
+      "checks": {
+        "section": "2.2.2",
+        "norm": "SHOULD"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "robots-equal-rules",
+      "category": "tie-breaking",
+      "expected": "ANSWERED",
+      "document": "rfc9309",
+      "questions": {
+        "es": "En RFC 9309, si una regla allow y una disallow son equivalentes, ¿cuál debería usarse?",
+        "en": "In RFC 9309, if an allow rule and a disallow rule are equivalent, which should be used?"
+      },
+      "answer_patterns": [
+        "allow.*?disallow.*?equivalent",
+        "allow.*?SHOULD be used"
+      ],
+      "evidence_pattern": "If an \"allow\" rule and a\\s+\"disallow\" rule are equivalent.*?\"allow\" rule SHOULD be used",
+      "checks": {
+        "section": "2.2.2",
+        "norm": "SHOULD"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "robots-specific-path",
+      "category": "rule-selection",
+      "expected": "ANSWERED",
+      "document": "rfc9309",
+      "questions": {
+        "es": "Si coinciden varias reglas de robots.txt, ¿RFC 9309 elige la coincidencia más específica o la ruta más corta, y cómo define la especificidad?",
+        "en": "If several robots.txt rules match, does RFC 9309 choose the most specific match or the shortest path, and how is specificity defined?"
+      },
+      "answer_patterns": [
+        "most specific match found MUST be used",
+        "most octets"
+      ],
+      "evidence_pattern": "most specific match found MUST be used.*?most octets",
+      "checks": {
+        "section": "2.2.2",
+        "norm": "MUST"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "robots-redirects",
+      "category": "quantity-and-condition",
+      "expected": "ANSWERED",
+      "document": "rfc9309",
+      "questions": {
+        "es": "¿Recomienda RFC 9309 seguir al menos 5 redirecciones consecutivas al buscar robots.txt, incluso si cambia el host?",
+        "en": "Does RFC 9309 recommend following at least 5 consecutive redirects while fetching robots.txt, even across hosts?"
+      },
+      "answer_patterns": [
+        "SHOULD follow at least five consecutive redirects",
+        "across authorities"
+      ],
+      "evidence_pattern": "SHOULD follow at least five consecutive redirects.*?across authorities",
+      "checks": {
+        "section": "2.3.1.2",
+        "norm": "SHOULD"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "robots-unavailable-access",
+      "category": "status-interpretation",
+      "expected": "ANSWERED",
+      "document": "rfc9309",
+      "questions": {
+        "es": "Según RFC 9309, si el servidor indica que robots.txt no está disponible mediante un error HTTP 4xx, ¿puede el rastreador acceder a otros recursos?",
+        "en": "According to RFC 9309, if the server indicates that robots.txt is unavailable with an HTTP 4xx error, may the crawler access other resources?"
+      },
+      "answer_patterns": [
+        "crawler MAY access any resources"
+      ],
+      "evidence_pattern": "crawler MAY access any resources",
+      "checks": {
+        "section": "2.3.1.3",
+        "norm": "MAY"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "sitemap-group-boundary",
+      "category": "extension-rule",
+      "expected": "ANSWERED",
+      "document": "rfc9309",
+      "questions": {
+        "es": "¿Puede un registro Sitemaps terminar un grupo de robots.txt según RFC 9309?",
+        "en": "May a Sitemaps record terminate a robots.txt group according to RFC 9309?"
+      },
+      "answer_patterns": [
+        "Sitemaps",
+        "MUST NOT terminate a group"
+      ],
+      "evidence_pattern": "\"Sitemaps\"\\s+record MUST NOT terminate a group",
+      "checks": {
+        "section": "2.2.4",
+        "norm": "MUST NOT"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "robots-file-location",
+      "category": "location-and-identifier",
+      "expected": "ANSWERED",
+      "document": "rfc9309",
+      "questions": {
+        "es": "¿Con qué nombre y en qué nivel de la ruta del servicio deben estar disponibles las reglas de robots.txt según RFC 9309?",
+        "en": "Under what filename and at what level of the service path must robots.txt rules be available under RFC 9309?"
+      },
+      "answer_patterns": [
+        "file named \"/robots.txt\"",
+        "all\\s+lowercase",
+        "top-level path"
+      ],
+      "evidence_pattern": "file named \"/robots.txt\".*?top-level path",
+      "checks": {
+        "section": "2.3",
+        "norm": "MUST"
+      },
+      "rationale": "The reference rule is stated in the pinned original source."
+    },
+    {
+      "id": "unspecified-json-depth",
+      "category": "unknown-local-configuration",
+      "expected": "ABSTAINED",
+      "document": null,
+      "questions": {
+        "es": "Según los documentos, ¿cuál es el número exacto de niveles de anidamiento permitido por el parser JSON que tengo instalado en este equipo?",
+        "en": "According to the documents, what exact number of nesting levels is permitted by the JSON parser installed on my computer?"
+      },
+      "answer_patterns": [
+        "insufficient evidence|evidencia suficiente"
+      ],
+      "evidence_pattern": null,
+      "checks": {},
+      "rationale": "The RFC allows implementation-specific limits but does not describe the installed parser or its configuration on the user computer."
+    },
+    {
+      "id": "unspecified-csv-row-limit",
+      "category": "absent-numeric-value",
+      "expected": "ABSTAINED",
+      "document": null,
+      "questions": {
+        "es": "¿Cuál es el límite máximo numérico de filas por archivo CSV que establece RFC 4180?",
+        "en": "What numeric maximum row limit per CSV file does RFC 4180 establish?"
+      },
+      "answer_patterns": [
+        "insufficient evidence|evidencia suficiente"
+      ],
+      "evidence_pattern": null,
+      "checks": {},
+      "rationale": "RFC 4180 describes the format and provides no numeric maximum row count."
+    },
+    {
+      "id": "unspecified-crawl-delay",
+      "category": "unsupported-extension",
+      "expected": "ABSTAINED",
+      "document": null,
+      "questions": {
+        "es": "¿Cuántos segundos de Crawl-delay exige por defecto RFC 9309?",
+        "en": "How many seconds of Crawl-delay does RFC 9309 require by default?"
+      },
+      "answer_patterns": [
+        "insufficient evidence|evidencia suficiente"
+      ],
+      "evidence_pattern": null,
+      "checks": {},
+      "rationale": "The pinned RFC does not define a default Crawl-delay value."
+    },
+    {
+      "id": "live-example-origin",
+      "category": "live-information",
+      "expected": "ABSTAINED",
+      "document": null,
+      "questions": {
+        "es": "¿Qué código HTTP devuelve hoy https://example.org/robots.txt, según los documentos cargados?",
+        "en": "What HTTP status does https://example.org/robots.txt return today, according to the loaded documents?"
+      },
+      "answer_patterns": [
+        "insufficient evidence|evidencia suficiente"
+      ],
+      "evidence_pattern": null,
+      "checks": {},
+      "rationale": "Static protocol documents contain no current observation for this origin. No request to that site is allowed in this local evaluation."
+    }
+  ]
+}

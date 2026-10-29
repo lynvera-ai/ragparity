@@ -1,0 +1,22 @@
+# Empty metadata scans remain INCONCLUSIVE even if a numeric claim matches.
+[source]
+kind = "memory"
+[index]
+kind = "memory"
+
+[[claims]]
+claim_id = "october-revenue"
+absolute_tolerance = "0.01"
+relative_tolerance = "0"
+[claims.expected]
+value = "1250.10"
+unit = "USD"
+period = "2026-10"
+source_id = "ledger"
+metric = "revenue"
+[claims.observed]
+value = "1250.11"
+unit = "USD"
+period = "2026-10"
+source_id = "ledger"
+metric = "revenue"

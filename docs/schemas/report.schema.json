@@ -1,0 +1,378 @@
+{
+  "$defs": {
+    "AuditContext": {
+      "additionalProperties": false,
+      "properties": {
+        "reference_time": {
+          "format": "date-time",
+          "title": "Reference Time",
+          "type": "string"
+        },
+        "identity_mode": {
+          "enum": [
+            "document",
+            "chunk"
+          ],
+          "title": "Identity Mode",
+          "type": "string"
+        },
+        "deletion_policy": {
+          "enum": [
+            "remove",
+            "tombstone",
+            "ignore"
+          ],
+          "title": "Deletion Policy",
+          "type": "string"
+        },
+        "sync_grace_seconds": {
+          "title": "Sync Grace Seconds",
+          "type": "integer"
+        },
+        "snapshot_validated": {
+          "default": false,
+          "title": "Snapshot Validated",
+          "type": "boolean"
+        },
+        "source_snapshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SnapshotEvidence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "index_snapshot": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/SnapshotEvidence"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "reference_time",
+        "identity_mode",
+        "deletion_policy",
+        "sync_grace_seconds"
+      ],
+      "title": "AuditContext",
+      "type": "object"
+    },
+    "ExecutionMetrics": {
+      "additionalProperties": false,
+      "properties": {
+        "elapsed_seconds": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Elapsed Seconds",
+          "type": "number"
+        },
+        "spool_bytes": {
+          "default": 0,
+          "minimum": 0,
+          "title": "Spool Bytes",
+          "type": "integer"
+        }
+      },
+      "title": "ExecutionMetrics",
+      "type": "object"
+    },
+    "Finding": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/FindingCode"
+        },
+        "status": {
+          "$ref": "#/$defs/Status"
+        },
+        "severity": {
+          "$ref": "#/$defs/Severity"
+        },
+        "source": {
+          "title": "Source",
+          "type": "string"
+        },
+        "source_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Source Id"
+        },
+        "document_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Document Id"
+        },
+        "collection": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Collection"
+        },
+        "chunk_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Chunk Id"
+        },
+        "evidence": {
+          "additionalProperties": true,
+          "title": "Evidence",
+          "type": "object"
+        },
+        "recommendation": {
+          "title": "Recommendation",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code",
+        "status",
+        "severity",
+        "source",
+        "recommendation"
+      ],
+      "title": "Finding",
+      "type": "object"
+    },
+    "FindingCode": {
+      "enum": [
+        "RECORD_SYNCED",
+        "DELETION_CONFIRMED",
+        "DELETION_IGNORED",
+        "MISSING_INDEX",
+        "ORPHAN_INDEX",
+        "VERSION_MISMATCH",
+        "HASH_MISMATCH",
+        "DELETION_MISMATCH",
+        "DELETED_PRESENT",
+        "MISSING_TOMBSTONE",
+        "DUPLICATE_ID",
+        "MISSING_METADATA",
+        "NO_EVIDENCE",
+        "ADAPTER_ERROR",
+        "DATABASE_TIMEOUT",
+        "DATABASE_CONNECTION_ERROR",
+        "STORAGE_ERROR",
+        "CHECK_CANCELLED",
+        "TIME_LIMIT_EXCEEDED",
+        "SNAPSHOT_MISSING",
+        "SNAPSHOT_INCOMPLETE",
+        "SNAPSHOT_MISMATCH",
+        "SNAPSHOT_COUNT_MISMATCH",
+        "SNAPSHOT_RECORD_MISMATCH",
+        "SYNC_PENDING",
+        "SYNC_EVIDENCE_MISSING",
+        "INVALID_TIMESTAMP",
+        "LAYOUT_MISMATCH",
+        "CHUNK_MANIFEST_MISSING",
+        "MISSING_CHUNK",
+        "UNEXPECTED_CHUNK",
+        "CHUNK_HASH_MISMATCH",
+        "MIXED_CHUNK_VERSIONS",
+        "CHUNKS_SYNCED",
+        "CLAIM_MATCH",
+        "CLAIM_VALUE_MISMATCH",
+        "CLAIM_NO_EVIDENCE",
+        "CLAIM_CONTEXT_MISMATCH",
+        "CLAIM_PROVENANCE_MISSING",
+        "CLAIM_PROVENANCE_MISMATCH"
+      ],
+      "title": "FindingCode",
+      "type": "string"
+    },
+    "Severity": {
+      "enum": [
+        "INFO",
+        "WARNING",
+        "ERROR"
+      ],
+      "title": "Severity",
+      "type": "string"
+    },
+    "SnapshotEvidence": {
+      "additionalProperties": false,
+      "description": "Caller-supplied completion evidence for an immutable, scoped scan.",
+      "properties": {
+        "snapshot_id": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Snapshot Id",
+          "type": "string"
+        },
+        "scope": {
+          "minLength": 1,
+          "pattern": "\\S",
+          "title": "Scope",
+          "type": "string"
+        },
+        "as_of": {
+          "format": "date-time",
+          "title": "As Of",
+          "type": "string"
+        },
+        "completed_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Completed At"
+        },
+        "record_count": {
+          "minimum": 0,
+          "title": "Record Count",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "snapshot_id",
+        "scope",
+        "as_of",
+        "record_count"
+      ],
+      "title": "SnapshotEvidence",
+      "type": "object"
+    },
+    "Status": {
+      "enum": [
+        "PASS",
+        "FAIL",
+        "INCONCLUSIVE",
+        "ERROR"
+      ],
+      "title": "Status",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "default": "2.0",
+      "enum": [
+        "1.0",
+        "2.0"
+      ],
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "status": {
+      "$ref": "#/$defs/Status",
+      "default": "INCONCLUSIVE"
+    },
+    "source_records": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Source Records",
+      "type": "integer"
+    },
+    "index_records": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Index Records",
+      "type": "integer"
+    },
+    "comparisons": {
+      "default": 0,
+      "minimum": 0,
+      "title": "Comparisons",
+      "type": "integer"
+    },
+    "counts": {
+      "additionalProperties": {
+        "minimum": 0,
+        "type": "integer"
+      },
+      "propertyNames": {
+        "$ref": "#/$defs/FindingCode"
+      },
+      "title": "Counts",
+      "type": "object"
+    },
+    "findings": {
+      "items": {
+        "$ref": "#/$defs/Finding"
+      },
+      "title": "Findings",
+      "type": "array"
+    },
+    "findings_truncated": {
+      "default": false,
+      "title": "Findings Truncated",
+      "type": "boolean"
+    },
+    "audit": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/AuditContext"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "metrics": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ExecutionMetrics"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "redacted": {
+      "default": false,
+      "title": "Redacted",
+      "type": "boolean"
+    }
+  },
+  "title": "CheckReport",
+  "type": "object"
+}

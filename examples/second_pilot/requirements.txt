@@ -1,0 +1,2 @@
+haystack-ai==3.4.1
+ollama-haystack==7.0.2

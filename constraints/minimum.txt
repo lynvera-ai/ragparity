@@ -1,0 +1,6 @@
+# Oldest runtime versions covered by the compatibility job.
+pydantic==2.14.1
+typer==0.27.3
+SQLAlchemy==2.1.6
+psycopg==3.3.6
+psycopg-binary==3.3.6
