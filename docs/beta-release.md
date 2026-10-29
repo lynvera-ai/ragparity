@@ -105,8 +105,10 @@ print("All bundle checksums match")
 
 ## Maintainer publication steps, still pending
 
-The [original beta review notes](pull-request-0.2.0b1.md) cover the initial toolkit
-integration. The maintainer merged PR #1; subsequent changes still need review.
+The [beta finalization PR description](pull-request-0.2.0b1.md) covers documentation
+and local distribution changes after the maintainer merged PR #1. The current local
+bundle records `a20f2f1` as its source; a different approved release commit requires
+its own rebuilt and verified bundle. Preparation notes do not substitute for that check.
 
 1. Review and integrate any remaining changes into `main` through the maintainer's PR.
 2. Recheck version, changelog, license, notices and the exact intended commit.

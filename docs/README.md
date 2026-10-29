@@ -55,7 +55,7 @@ that preparation. The [feedback guide](beta-feedback.md) provides a short review
 
 Maintainers can use [local distribution preparation](beta-release.md),
 [proposed release notes](release-notes-0.2.0b1.md) and the
-[original beta review notes](pull-request-0.2.0b1.md). These are preparation
+[beta finalization PR description](pull-request-0.2.0b1.md). These are preparation
 documents; they do not imply that a release has been published.
 
 [Contributing](../CONTRIBUTING.md) describes development checks.
