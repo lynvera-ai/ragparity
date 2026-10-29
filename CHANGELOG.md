@@ -2,6 +2,11 @@
 
 ## 0.2.0b1
 
+- Evaluate 46 new bilingual Haystack questions against a frozen local runtime;
+  preserve 22 passes and 24 failures with per-question review and source fidelity checks.
+- Add novelty checks against earlier questions and offline tests for incomplete
+  comparisons, unsupported answers and altered quotations.
+
 - Ground Haystack replies in complete verified source passages, with citations derived
   from actual headings and list items and localized normative-force labels.
 - Strengthen bilingual evaluation to check displayed quotations, source hashes,

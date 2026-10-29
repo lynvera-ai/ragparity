@@ -110,6 +110,30 @@ acceptance or a proof of universal answer relevance. The previous failing replie
 remain preserved. Read `REVIEW.md` for the before-and-after results and remaining
 limitations. The independent human-review form remains blank.
 
+### Fresh questions
+
+`fresh_questions.json` adds 23 paired cases with new topics and more varied tasks.
+The unchanged service passed 22/46: 10/23 in Spanish and 12/23 in English.
+Read [FRESH_REVIEW.md](FRESH_REVIEW.md) for the frozen method, all 24 failures and
+follow-up priorities. `fresh_review.csv` preserves the per-question engineering
+assessment and response hashes. These results are separate from the original
+18-case regression.
+
+To evaluate another unseen set against the already running service:
+
+```bash
+.venv/bin/python examples/second_pilot/evaluate_fresh.py --questions /path/to/new_questions.json
+```
+
+Use the same schema with new cases and authoritative source references. The
+evaluator validates references, rejects normalized duplicates and earlier question
+text, then freezes the questions, models, source manifest, index and code before
+sending requests. It refuses to run on `main`. It exits with status 1 when a reply
+fails, preserving every observation. The included set has already been executed;
+the novelty guard rejects using it again as an unseen evaluation. Replay its
+saved replies with the snapshotted scorer for offline analysis. Semantic novelty
+also needs topic review; text normalization alone cannot reject all paraphrases.
+
 AnythingLLM was considered first, but its image download failed when the host ran
 out of space. The incomplete download was discarded, the isolated VM was
 restarted, and the original Open WebUI data was retained. The smaller unused
