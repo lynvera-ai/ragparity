@@ -1,9 +1,10 @@
-# Pull request preparation
+# Original beta review notes
 
-This file is a proposed description for the maintainer's pull request from
-`feat/second-local-rag-pilot` into `main`. No pull request or release is created
-by this preparation. Review the entire branch; the current base contains only
-the initial repository files.
+This description was prepared for the initial beta integration from
+`feat/second-local-rag-pilot` into `main`, when the base contained only the initial
+repository files. The maintainer merged [PR #1](https://github.com/lynvera-ai/ragparity/pull/1)
+on October 29, 2026. The draft below is retained as review context for that original
+scope. Subsequent changes must be reviewed against the updated `main`.
 
 ## Proposed title
 

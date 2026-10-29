@@ -29,11 +29,10 @@ document bodies, embeddings or complete generated answers are correct.
 
 ## Quick start
 
-The beta is currently available from the working branch. A release tag and PyPI package
-have not been published by this preparation. On macOS or Linux, with Python 3.12+:
+Install the beta from the GitHub source. On macOS or Linux, with Python 3.12+:
 
 ```bash
-git clone --branch feat/second-local-rag-pilot --single-branch https://github.com/lynvera-ai/ragparity.git
+git clone --branch main --single-branch https://github.com/lynvera-ai/ragparity.git
 cd ragparity
 python3 -m venv .venv
 source .venv/bin/activate

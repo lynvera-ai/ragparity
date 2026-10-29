@@ -10,11 +10,10 @@ evidence agrees under the selected rules. It does not certify a complete generat
 
 ## Install from GitHub
 
-The working branch currently contains the beta preparation. Use this command until a
-maintainer publishes a reviewed release tag:
+The beta code is available on `main`. For installation from source:
 
 ```bash
-git clone --branch feat/second-local-rag-pilot --single-branch https://github.com/lynvera-ai/ragparity.git
+git clone --branch main --single-branch https://github.com/lynvera-ai/ragparity.git
 cd ragparity
 python3 -m venv .venv
 ```
