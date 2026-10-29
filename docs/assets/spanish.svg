@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="152" height="30" viewBox="0 0 152 30" role="img" aria-labelledby="title">
+  <title id="title">Guía rápida en español</title>
+  <path fill="#48545f" d="M0 0h56v30H0z"/>
+  <path fill="#a4efd0" d="M56 0h96v30H56z"/>
+  <g font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" letter-spacing="1" text-anchor="middle">
+    <text x="28" y="19" fill="#ffffff">GUÍA</text>
+    <text x="104" y="19" fill="#14222b" font-weight="700">ESPAÑOL</text>
+  </g>
+</svg>

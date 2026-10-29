@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="204" height="30" viewBox="0 0 204 30" role="img" aria-labelledby="title">
+  <title id="title">Status: 0.2.0b1 beta</title>
+  <path fill="#48545f" d="M0 0h70v30H0z"/>
+  <path fill="#e9c98a" d="M70 0h134v30H70z"/>
+  <g font-family="ui-monospace, SFMono-Regular, Consolas, monospace" font-size="11" letter-spacing="1" text-anchor="middle">
+    <text x="35" y="19" fill="#ffffff">STATUS</text>
+    <text x="137" y="19" fill="#14222b" font-weight="700">0.2.0b1 BETA</text>
+  </g>
+</svg>
