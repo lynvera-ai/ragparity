@@ -2,6 +2,9 @@
 
 ## 0.2.0b1
 
+- Organize public documentation around a focused project overview, navigation index,
+  CLI reference, Python integration examples and architecture guide.
+
 - Prepare a distributable beta with a clean-install verification tool, explicit source
   archive contents, first-use instructions, draft release notes and external feedback form.
 - Clarify the supported library/CLI scope and experimental pilot limitations, retaining

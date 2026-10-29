@@ -7,10 +7,17 @@ public contracts or CLI behavior change.
 1. Create a branch from `main`.
 2. Install Python 3.12+ and run `python -m pip install -e '.[dev,postgres]'`.
 3. Run Ruff checks and formatting, `mypy src`, and unit tests with coverage using the
-   commands in the README.
+   commands below.
 4. For database changes, run the Compose integration example and `pytest -m integration`.
 5. Build with `python -m build` and check that the wheel installs in a clean environment.
 6. Submit a pull request describing the behavior, tests, and relevant limitations.
+
+```bash
+ruff check src tests examples benchmarks tools
+ruff format --check src tests examples benchmarks tools
+mypy src
+pytest tests/unit --cov=lynvera_ragparity --cov-fail-under=95
+```
 
 For distribution checks, follow [the local beta preparation guide](docs/beta-release.md).
 External beta testers can use [the feedback template](docs/beta-feedback.md). Independent
