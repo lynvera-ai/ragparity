@@ -31,6 +31,12 @@ packages = ["src/lynvera_ragparity"]
 
 [tool.hatch.build.targets.sdist]
 core-metadata-version = "2.4"
+include = [
+  "/src", "/docs", "/examples", "/tests", "/benchmarks", "/tools", "/constraints",
+  "/pyproject.toml", "/README.md", "/CHANGELOG.md", "/LICENSE", "/NOTICE",
+  "/SECURITY.md", "/CONTRIBUTING.md", "/CODE_OF_CONDUCT.md", "/compose.yaml",
+  "/.env.example",
+]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

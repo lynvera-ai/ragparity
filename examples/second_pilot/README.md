@@ -1,5 +1,10 @@
 # Second local RAG pilot
 
+Experimental example outside the supported library and CLI beta scope. Its latest
+varied evaluation passed 22/46 and preserves 24 failures in [FRESH_REVIEW.md](FRESH_REVIEW.md).
+Independent acceptance is pending. Start with [the core installation guide](../../docs/getting-started.md)
+if you only need metadata or numeric checks.
+
 This application uses Haystack 3.4.1 with its Ollama integration. It is separate from
 Open WebUI and runs at http://127.0.0.1:3189. It uses the first pilot's existing local
 model service. No paid account or remote inference is required.
@@ -52,6 +57,13 @@ metadata and citation boundaries are checked explicitly. Search translation stil
 needs broader independent acceptance for unfamiliar wording and domains.
 
 ## Run
+
+This setup was exercised on Apple Silicon macOS. It assumes the first pilot's local
+Ollama service is already prepared and has the two pinned models. A fresh core install
+does not provide that service. The chat uses port 3189 and the model service uses 11445;
+check availability before starting, and keep these services restricted to loopback.
+Other platforms and a standalone portable chat installer remain unverified.
+The `RAGPARITY_SECOND_HOME` override chooses a private runtime folder outside Git.
 
 Start the first pilot's managed model service, then install the optional packages:
 

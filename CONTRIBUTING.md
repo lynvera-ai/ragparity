@@ -1,6 +1,6 @@
 # Contributing
 
-Lynvera RAGParity is an experimental MVP. Open an issue to discuss substantial changes.
+Lynvera RAGParity is a beta toolkit. Open an issue to discuss substantial changes.
 Keep contributions focused, include behavioral tests, and update documentation when
 public contracts or CLI behavior change.
 
@@ -11,6 +11,10 @@ public contracts or CLI behavior change.
 4. For database changes, run the Compose integration example and `pytest -m integration`.
 5. Build with `python -m build` and check that the wheel installs in a clean environment.
 6. Submit a pull request describing the behavior, tests, and relevant limitations.
+
+For distribution checks, follow [the local beta preparation guide](docs/beta-release.md).
+External beta testers can use [the feedback template](docs/beta-feedback.md). Independent
+acceptance remains pending until another person supplies actual results.
 
 Use explicit evidence contracts. Missing evidence must never silently become a pass.
 Do not include secrets, customer data, generated reports, caches, or internal work notes.

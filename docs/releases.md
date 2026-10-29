@@ -1,13 +1,15 @@
 # Compatibility and release policy
 
-Version 0.2.0b1 is a beta candidate. Field validation, snapshot, chunk, failure and synthetic
-pipeline tests support this status. Independent application pilots remain outstanding;
-no production-readiness or general answer-verification claim is made.
+Version 0.2.0b1 is a beta for the documented library and CLI contracts. Field validation,
+snapshot, chunk, failure and synthetic pipeline tests support this scope. Application
+chats remain experimental, including the Haystack evaluation's 24 preserved failures.
+Independent application acceptance remains pending; no production-readiness or general
+answer-verification claim is made.
 
 ## Public contracts
 
 The supported interfaces are the documented exports of `core`, `checks`, `claims`,
-`sources`, `indexes`, `config`, and `reports`, plus the five CLI commands. Private
+`sources`, `indexes`, `config`, and `reports`, plus the four CLI commands. Private
 underscore-prefixed helpers and storage layout are implementation details.
 
 - Existing finding code meanings and CLI exit codes are retained. Ctrl-C exits 130.
@@ -32,6 +34,13 @@ The minimum runtime versions are deliberately limited to versions exercised by t
 release. Audits check the resolved dependencies; an audit is not a security certification.
 
 ## Preparing a release
+
+For a local-only preparation without hosted jobs, follow [the beta build guide](beta-release.md).
+It verifies a clean wheel installation and source rebuild and writes SHA-256 checksums.
+The [proposed prerelease notes](release-notes-0.2.0b1.md) are ready for maintainer review.
+No tag, GitHub Release or PyPI publication is created by that process.
+
+The existing hosted preparation workflow remains an optional maintainer tool:
 
 1. Review the source diff and dependency changes, update the changelog and keep
    `pyproject.toml` and `__version__` consistent.

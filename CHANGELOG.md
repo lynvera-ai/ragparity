@@ -2,6 +2,11 @@
 
 ## 0.2.0b1
 
+- Prepare a distributable beta with a clean-install verification tool, explicit source
+  archive contents, first-use instructions, draft release notes and external feedback form.
+- Clarify the supported library/CLI scope and experimental pilot limitations, retaining
+  the fresh Haystack evaluation's 24 failures and pending independent acceptance.
+
 - Evaluate 46 new bilingual Haystack questions against a frozen local runtime;
   preserve 22 passes and 24 failures with per-question review and source fidelity checks.
 - Add novelty checks against earlier questions and offline tests for incomplete

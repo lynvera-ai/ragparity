@@ -5,10 +5,10 @@ and AI-generated answers expressed as structured numeric claims.
 
 **Trust your AI data. Verify every layer.**
 
-Version 0.2.0b1 is a beta candidate with completed-snapshot checks, native fragment
-validation, execution controls and a reproducible catalog pilot. Independent application
-pilots remain outstanding. It checks explicit metadata and numeric contracts; it does
-not certify free-form answers or provide semantic fact-checking.
+Version 0.2.0b1 is a beta for metadata consistency and structured numeric checks.
+The command-line tool and library are the supported beta scope. Chat applications are
+experimental examples. Independent application acceptance remains pending. The toolkit
+does not certify free-form answers or provide semantic fact-checking.
 
 ## Why RAGParity
 
@@ -40,8 +40,11 @@ Python 3.12 or newer is required. Install from this repository; this version is 
 published to PyPI.
 
 ```bash
+git clone --branch feat/second-local-rag-pilot --single-branch https://github.com/lynvera-ai/ragparity.git
+cd ragparity
 python3 -m venv .venv
 source .venv/bin/activate
+python -m pip install --upgrade 'pip>=26.2,<27'
 python -m pip install .
 # For PostgreSQL and pgvector:
 python -m pip install '.[postgres]'
@@ -49,6 +52,11 @@ python -m pip install '.[postgres]'
 
 The distribution is `lynvera-ragparity`; the import package is `lynvera_ragparity` and
 its executable is `ragparity`.
+
+This branch contains the beta preparation; no release tag has been published by this
+work. For Windows activation, installation from a downloaded wheel, a guided mismatch
+example and troubleshooting, read [Getting started](docs/getting-started.md).
+The core example requires no database, model download, network service or account.
 
 ## Quick start
 
@@ -143,6 +151,9 @@ independently scored browser observations. It also includes a frozen new-questio
 evaluation and isolated update/backup/recovery exercises.
 The [second local pilot](examples/second_pilot/README.md) uses a separate Haystack
 application with complete public RFCs and multiple fragments per document.
+Its latest new-question evaluation passed 22/46, with 24 preserved failures; see the
+[fresh evaluation](examples/second_pilot/FRESH_REVIEW.md). These pilot results do not
+constitute independent acceptance of the toolkit or a general answer-quality guarantee.
 [Scale measurements](docs/performance.md) document
 measured resources and their limits. Report consumers should review the
 [migration notes](docs/releases.md#migrating-from-01) before upgrading from 0.1.
@@ -186,6 +197,8 @@ CI runs Python 3.12, 3.13, and 3.14, quality checks, coverage, package build and
 installation, CLI smoke tests, minimum dependency compatibility, and Compose integration jobs for PostgreSQL 16, 17 and 18. A free dependency
 audit, Dependabot configuration and a manual release preparation workflow are included.
 There is no PyPI publishing workflow. See [release policy](docs/releases.md).
+Maintainers can [prepare and verify distribution files locally](docs/beta-release.md).
+Beta testers can follow [the external review instructions](docs/beta-feedback.md).
 
 ## Compatibility and limitations
 

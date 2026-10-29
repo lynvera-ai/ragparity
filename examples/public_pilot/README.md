@@ -1,5 +1,9 @@
 # Local public-document pilot
 
+Experimental example with a platform-specific installer. It is not required by the
+library or CLI beta. For the lightweight core example, use [Getting started](../../docs/getting-started.md).
+Independent user acceptance remains pending; historical pilot results are retained.
+
 This pilot runs Open WebUI, native Ollama and PostgreSQL/pgvector on an Apple Silicon
 Mac. It uses actual local embeddings, retrieval and language-model generation. No model
 subscription, paid API, cloud model or hosted database is configured. Open WebUI retains
