@@ -1,0 +1,10 @@
+[
+  {"id":"mars-solar-interval","expected":"ANSWERED","reference":{"planet":"mars","metric":"length-of-day"},"questions":{"en":"What is the length of day on Mars in hours?","es":"¿Cuántas horas dura el día solar de Marte según la ficha?"}},
+  {"id":"venus-fixed-stars","expected":"ANSWERED","reference":{"planet":"venus","metric":"rotation-period"},"questions":{"en":"Give the signed period, in hours, for Venus's rotation relative to fixed stars.","es":"¿Cuántas horas indica la ficha para la rotación de Venus respecto a las estrellas fijas, con signo?"}},
+  {"id":"jupiter-diameter-exclusion","expected":"ANSWERED","reference":{"planet":"jupiter","metric":"diameter"},"questions":{"en":"List Jupiter's equatorial diameter in km, not its radius.","es":"¿Qué diámetro ecuatorial en km tiene Júpiter, en vez de su radio?"}},
+  {"id":"venus-average","expected":"ANSWERED","reference":{"planet":"venus","metric":"mean-temperature"},"questions":{"en":"According to the fixed reference, what average temperature in C is given for Venus?","es":"¿Qué temperatura promedio en C figura para Venus?"}},
+  {"id":"mercury-minimum","expected":"ABSTAINED","questions":{"en":"What minimum temperature in C is documented for Mercury in the uploaded excerpts?","es":"¿Qué temperatura mínima de Mercurio en C documentan los extractos cargados?"}},
+  {"id":"saturn-circumference","expected":"ABSTAINED","questions":{"en":"What circumference in km is explicitly listed for Saturn?","es":"¿Qué circunferencia de Saturno en km aparece explícitamente en los documentos?"}},
+  {"id":"earth-two-time-measures","expected":"ABSTAINED","questions":{"en":"Give Earth's sidereal rotation and solar day in hours.","es":"Indica la rotación sideral y el día solar de la Tierra en horas."}},
+  {"id":"neptune-half-diameter","expected":"ABSTAINED","questions":{"en":"What is half the equatorial diameter of Neptune in km?","es":"¿Cuál es la mitad del diámetro ecuatorial de Neptuno en km?"}}
+]

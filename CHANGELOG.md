@@ -2,6 +2,11 @@
 
 ## 0.2.0b1
 
+- Match planetary measurement types and qualifiers against retrieved labels before model
+  selection, separating solar day/rotation, radius/diameter and mean/extreme temperatures.
+- Record the measurement contract and add bilingual regression/probe cases, preserving
+  earlier failed observations and source-derived values without adding models or services.
+
 - Add a frozen bilingual exploratory evaluation through the native chat API and a blank
   human-review form; preserve newly observed measurement-selection defects.
 - Exercise public-copy updates, deletion, partial-index repair, coordinated backup,

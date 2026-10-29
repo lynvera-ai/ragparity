@@ -397,8 +397,9 @@ Three measurement-selection defects occurred in both languages:
 | Mars maximum temperature | `-65 C`, `mean-temperature` | Abstain: no maximum-temperature fact in these excerpts |
 
 The model selected valid retrieved facts that did not answer the requested measurement.
-A citation and matching source unit did not prevent these semantic errors. These remain
-open beta defects; the earlier repeated reference-set success must not be generalized
+A citation and matching source unit did not prevent these semantic errors. These were
+open beta defects in version 6; see the version 7 correction below. The earlier repeated
+reference-set success must not be generalized
 into an accuracy claim. The six FAIL observations are preserved. An offline review
 strengthened complete-null-field validation for abstentions and confirmed that all 32
 verdicts remained unchanged without sending additional generation requests.
@@ -462,6 +463,79 @@ not multi-day reliability or arbitrary concurrent writers.
 
 The toolkit suite passes **224 unit tests**, including safeguards against mounting primary
 volumes, mutating uncreated file IDs and accepting invalid abstentions. Core coverage is
-95.79%; lint, formatting and static typing checks pass. Production readiness still needs
-the three measurement defects resolved, independent acceptance and sustained operational
-validation. No 1.0 tag or release was created.
+95.79%; lint, formatting and static typing checks pass. At the end of that evaluation, production readiness still required resolution of the
+three measurement defects, independent acceptance and sustained operational validation. No 1.0 tag or release was created.
+
+### Measurement-contract correction: version 7
+
+Version 7 filters the planetary evidence by requested quantity and source-label qualifiers
+before model selection. Solar day and sidereal rotation are distinct kinds; radius and
+diameter are distinct kinds; mean, maximum, minimum, median and range are distinct
+qualifiers. Compatible facts are derived from actual retrieved labels, not benchmark
+case IDs, expected document IDs, planet-specific decisions or reference numbers. New
+source evidence can make a previously absent quantity answerable without changing this
+filter; tests supply arbitrary radius/maximum rows and altered values to exercise that.
+
+Explicit comparison exclusions such as "rather than" or "en lugar de" affect only the
+measurement contract. The full original question and normalized query remain retained
+and used for retrieval/selection. Multiple requested measures and explicit derived-value
+requests fail closed. Eligible quote spans, conditions, source metrics and numeric strings
+remain attached to the original fact. The model may select only from the filtered list;
+invalid indices and generation failures keep their previous failure behavior. New policy
+reasons are displayed in English and Spanish and `measurement_request` records the
+contract, qualifiers, exclusion flag and derivation flag in runtime evidence.
+
+This is a bounded planetary-adapter policy, not a general language parser. Unknown or
+indirect wording can require rephrasing. PostgreSQL upper-limit rows retain their existing
+selection path. The change does not add model calls, dependencies, paid services, ports
+or model downloads. The same source documents, embedding model and `qwen3:1.7b` selector
+remain pinned. Improved abstentions are explicit policy enforcement, not evidence that
+the model learned to abstain.
+
+#### Repeated acceptance
+
+| Channel and run | Result |
+| --- | --- |
+| Native chat API, original 32 cases, `20261029T011456Z-cd6b0cdf` | **32 / 32 PASS**, 16 / 16 per language |
+| Native chat API, 16 additional variants, `20261029T011753Z-560b8053` | **16 / 16 PASS**, 8 / 8 per language |
+| Original English harness, `20261029T011904Z-31d81782` | 23 / 23 supported PASS, 2 / 2 policy abstentions |
+| Original Spanish harness, `20261029T012303Z-925cb53a` | 23 / 23 supported PASS, 2 / 2 policy abstentions |
+| Browser chat, six formerly failing cases | 2 / 2 supported PASS, 4 / 4 policy abstentions |
+| Source/index audit | PASS, 19 documents and 19 fragments |
+
+Every completed evaluation had zero operational errors and invalid selections. The new
+32-case run's sealed question/reference records were compared directly with the original
+26/32 run and are identical. Source/reference values and expected dispositions were not
+changed to obtain the improved result. Both native API repetitions retained the deployed
+runtime hashes and source/model versions. Their selected completions used at most six
+reported tokens against the unchanged 24-token cap.
+
+The repeated 32 cases now produce twenty correct extracted answers, ten policy abstentions
+and two clarifications. All six former failures are resolved in these regressions:
+Mercury's solar day is **4222.6 hours**, metric `length-of-day`; the Jupiter radius and
+Mars maximum-temperature requests abstain because those measures are not listed. None
+of the ten policy abstentions invokes model selection. The former 26/32 report, native
+responses and receipts remain untouched.
+
+`measurement_probes.json` adds eight paired cases: Mars solar day, signed Venus rotation
+relative to fixed stars, Jupiter diameter with an excluded radius clause, Venus average
+temperature, Mercury minimum temperature, Saturn circumference, two Earth time measures
+and half a Neptune diameter. It produced eight supported answers and eight policy
+abstentions, using eight model-selection calls. These are developer-authored engineering
+variants, not independent human acceptance. The original 32 cases are now regressions.
+
+The six browser questions were entered in chat `d61ada5f-4a70-47f7-8cc3-fe706c728d7a`.
+Each visible response and applicable citation matched one native assistant-message receipt
+with the expected language, pinned versions and current deployed code hashes. The four
+unsupported-measure questions had `NO_EVIDENCE_FOR_MEASUREMENT` and no generation request.
+Screenshots include the corrected Spanish Mercury answer. Browser observations, screenshots
+and the comparison report stay in `PILOT_HOME/ui-measurement-evidence/`; the exact deployed
+bundle and manifest are archived at `PILOT_HOME/ui-deployments/961d1e4c88711ed8/`. Older
+bundles and prior UI/evaluation evidence remain preserved.
+
+The suite now passes **255 unit tests** with 95.79% core coverage. New tests exercise
+bilingual measure aliases, altered retrieved numbers and metric identifiers, positive
+radius/maximum evidence, missing and contradictory measures, exclusions, derived requests,
+invalid filtered indices and abstention before generation. Lint, formatting and static
+typing checks pass. The runtime still needs independent human acceptance, broader source
+and application coverage, and sustained operational validation before a stable release.

@@ -30,6 +30,18 @@ UNIT_PATTERNS = {
     "people": r"people|population",
 }
 REASONS = {
+    "NO_EVIDENCE_FOR_MEASUREMENT": (
+        "The retrieved documents do not contain that measurement with those qualifiers."
+    ),
+    "AMBIGUOUS_MEASUREMENT": (
+        "Ask for one measurement at a time: solar day or sidereal rotation, for example."
+    ),
+    "MEASUREMENT_UNSPECIFIED": (
+        "Name the measurement explicitly, such as mean temperature or solar day."
+    ),
+    "DERIVED_MEASUREMENT_UNSUPPORTED": (
+        "This mode extracts listed measurements and cannot calculate new values."
+    ),
     "NO_EVIDENCE_FOR_UNIT": "The public documents contain no evidence for that measurement unit.",
     "NO_EVIDENCE_FOR_SUBJECT": "The requested subject is absent from the retrieved documents.",
     "AMBIGUOUS_SUBJECT": "Please ask about one named subject at a time.",
@@ -37,6 +49,16 @@ REASONS = {
 }
 
 REASONS_ES = {
+    "NO_EVIDENCE_FOR_MEASUREMENT": (
+        "No hay evidencia de esa medida con los calificadores solicitados."
+    ),
+    "AMBIGUOUS_MEASUREMENT": (
+        "Pregunta por una sola medida: por ejemplo, día solar o rotación sideral."
+    ),
+    "MEASUREMENT_UNSPECIFIED": "Nombra la medida solicitada, como temperatura media o día solar.",
+    "DERIVED_MEASUREMENT_UNSUPPORTED": (
+        "Este modo extrae medidas documentadas y no calcula valores nuevos."
+    ),
     "NO_EVIDENCE_FOR_UNIT": (
         "Los documentos públicos no contienen evidencia para esa unidad de medida."
     ),

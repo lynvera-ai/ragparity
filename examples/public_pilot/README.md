@@ -148,8 +148,8 @@ Generated files are `PILOT_HOME/metadata-report.json` and `metadata-report.html`
 .venv/bin/python examples/public_pilot/evaluate.py --case relation-count --case index-columns
 ```
 
-Harness version 6 adds bilingual query normalization to version 5 retrieval, evidence
-selection and extraction. It retrieves three
+Harness version 7 adds a planetary measurement contract to the bilingual retrieval,
+evidence selection and extraction flow. It retrieves three
 real indexed excerpts across both corpora. `grounded.py` parses atomic facts from the
 pilot's two fixed document formats, retaining subject, label, unit, conditions and exact
 quote offsets. It filters by the caller's explicit unit contract. The local model selects
@@ -157,6 +157,21 @@ one evidence row or `-1`; it does not generate a number, unit, metric or citatio
 answer copies all four fields from the **same retrieved fact**. No golden reference value,
 expected document ID, expected metric or benchmark support flag enters this runtime path.
 The benchmark independently checks the resulting structured answer afterward.
+
+Before model selection, the planetary adapter compares the requested measurement
+with labels in the actual retrieved facts. Its bounded vocabulary separates solar day,
+sidereal rotation, orbital period, diameter, radius and temperature statistics. Requested
+qualifiers must be present in the source label. Explicit exclusions such as "rather than"
+are excluded only from this contract, while the full question is retained for retrieval,
+generation and evidence. Multiple measures, unrecognized measures and requested derived
+values cause policy abstention. PostgreSQL upper-limit rows keep their existing path.
+
+The runtime records `measurement_request` with the requested kinds, qualifiers, excluded
+clause flag and derivation flag. It contains no reference values or expected source IDs.
+The selector only sees compatible facts and its returned index is checked against that
+filtered list. If a source actually documents a radius or maximum, that row remains
+eligible; there is no blanket ban on those quantities. The gate is a source-adapter rule,
+not learned model abstention or general natural-language understanding.
 
 The selection schema contains one integer and allows at most 24 generated tokens. There
 are no automatic retries or fallbacks to reference values. Errors, malformed selections,
@@ -283,15 +298,17 @@ This is API acceptance evidence, not another browser run or independent human re
 
 ```bash
 .venv/bin/python examples/public_pilot/new_evaluation.py
+.venv/bin/python examples/public_pilot/new_evaluation.py \
+  --questions examples/public_pilot/measurement_probes.json
 .venv/bin/python examples/public_pilot/operations.py
 ```
 
 Evaluation runs stay at `PILOT_HOME/evaluations/<run-id>/`, including the sealed protocol,
 code copies, exact requests, responses, receipts and report. Exit status 1 means an answer
-acceptance failure and 2 an operational error. The current new-question result is **26/32**:
-the selector confuses Mercury's solar day with its sidereal rotation, Jupiter's radius
-with diameter, and Mars's maximum temperature with its mean, in both languages. These
-are open beta defects. The runtime was not tuned during this evaluation. See
+acceptance failure and 2 an operational error. The initial new-question result was **26/32**: it exposed confusion between Mercury's
+solar day and sidereal rotation, Jupiter's radius and diameter, and Mars's maximum and mean
+temperature, in both languages. Version 7 adds the measurement contract and the repeat passed **32/32**. Sixteen
+additional bilingual variants also passed. The original failed report is retained. See
 [REVIEW.md](REVIEW.md) for the recorded cases. Use the blank [new_review.csv](new_review.csv)
 for independent human review; no reviewer decisions have been filled automatically.
 

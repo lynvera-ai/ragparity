@@ -55,7 +55,9 @@ def test_same_unit_measurements_stay_distinct_and_selector_can_abstain(grounded)
     facts, _ = grounded.eligible_facts(
         "Sidereal rotation period of Probe?", "hours", [planetary_context()]
     )
-    assert {fact.metric for fact in facts} == {"rotation-period", "length-of-day"}
+    assert {fact.metric for fact in facts} == {"rotation-period"}
+    with pytest.raises(ValueError):
+        grounded.selected_answer('{"choice":1}', facts)
     assert grounded.selected_answer('{"choice":0}', facts)[0]["value"] == "-18.5"
     answer, index = grounded.selected_answer('{"choice":-1}', facts)
     assert index == -1
@@ -255,3 +257,146 @@ def test_absent_or_ambiguous_subject_cannot_borrow_a_matching_measurement(ground
     )
     assert reason is None
     assert {fact.document_id for fact in facts} == {"nasa-another"}
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "How long is Probe's solar day, expressed in hours?",
+        "What is the length of day in hours for Probe?",
+        "Give the day length of Probe in hours.",
+        "¿Cuántas horas dura el día solar de Probe?",
+        "¿Cuál es la duración del día solar de Probe en horas?",
+        "Que duracion solar del dia figura para Probe en horas?",
+    ],
+)
+def test_measurement_filter_selects_solar_day_from_source_label_not_metric_id(grounded, question):
+    context = planetary_context()
+    context["text"] = context["text"].replace(
+        "Metric ID: length-of-day; Solar length of day: 18.5 hours.",
+        "Metric ID: different-identifier; Solar length of day: 237.125 hours.",
+    )
+    facts, reason = grounded.eligible_facts(question, "hours", [context])
+    assert reason is None and len(facts) == 1
+    assert facts[0].metric == "different-identifier"
+    assert facts[0].value == "237.125"
+    assert grounded.selected_answer('{"choice":0}', facts)[0]["value"] == "237.125"
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        "What is the equatorial radius of Probe in km?",
+        "¿Qué radio ecuatorial de Probe en km se indica?",
+        "What maximum temperature in C is listed for Probe?",
+        "¿Cuál es la temperatura máxima de Probe en C?",
+        "Give the minimum temperature of Probe in C.",
+        "¿Qué temperatura mínima tiene Probe en C?",
+        "What median temperature in C is documented for Probe?",
+        "What circumference in km is listed for Probe?",
+    ],
+)
+def test_missing_quantity_or_statistic_cannot_borrow_same_unit_fact(grounded, question):
+    unit = "km" if "km" in question else "C"
+    facts, reason = grounded.eligible_facts(question, unit, [planetary_context()])
+    assert facts == [] and reason == "NO_EVIDENCE_FOR_MEASUREMENT"
+
+
+@pytest.mark.parametrize(
+    "question,unit,metric,value",
+    [
+        ("What equatorial radius in km is listed for Probe?", "km", "radial-span", "4512.125"),
+        ("¿Qué radio ecuatorial de Probe en km consta?", "km", "radial-span", "4512.125"),
+        ("What maximum temperature in C is listed for Probe?", "C", "upper-temperature", "43.25"),
+        ("¿Qué temperatura máxima de Probe en C figura?", "C", "upper-temperature", "43.25"),
+    ],
+)
+def test_radius_and_maximum_are_accepted_when_that_actual_evidence_exists(
+    grounded, question, unit, metric, value
+):
+    context = planetary_context()
+    context["text"] += "\nMetric ID: radial-span; Equatorial radius: 4512.125 km.\n"
+    context["text"] += "Metric ID: upper-temperature; Maximum temperature: 43.25 C.\n"
+    facts, reason = grounded.eligible_facts(question, unit, [context])
+    assert reason is None and len(facts) == 1
+    assert grounded.selected_answer('{"choice":0}', facts)[0]["metric"] == metric
+    assert facts[0].value == value
+
+
+@pytest.mark.parametrize(
+    "question",
+    [
+        (
+            "What signed sidereal rotation period in hours is listed for Probe, "
+            "rather than its solar length of day?"
+        ),
+        (
+            "¿Qué período de rotación sideral de Probe en horas figura, "
+            "en lugar de su duración solar del día?"
+        ),
+        "Give the sidereal day of Probe in hours, not its solar day.",
+    ],
+)
+def test_excluded_comparison_clause_does_not_change_requested_measurement(grounded, question):
+    facts, reason = grounded.eligible_facts(question, "hours", [planetary_context()])
+    assert reason is None and [f.metric for f in facts] == ["rotation-period"]
+    assert grounded.measurement_request(question)["excluded_clause"]
+
+
+@pytest.mark.parametrize(
+    "question,reason",
+    [
+        ("Compare the solar day and sidereal rotation of Probe in hours.", "AMBIGUOUS_MEASUREMENT"),
+        ("Compara el día solar y la rotación sideral de Probe en horas.", "AMBIGUOUS_MEASUREMENT"),
+        ("What period in hours is listed for Probe?", "MEASUREMENT_UNSPECIFIED"),
+        ("What is half the equatorial diameter of Probe in km?", "DERIVED_MEASUREMENT_UNSUPPORTED"),
+        (
+            "¿Cuál es la mitad del diámetro ecuatorial de Probe en km?",
+            "DERIVED_MEASUREMENT_UNSUPPORTED",
+        ),
+    ],
+)
+def test_ambiguous_and_derived_quantities_fail_closed(grounded, question, reason):
+    unit = "km" if "km" in question else "hours"
+    assert grounded.eligible_facts(question, unit, [planetary_context()]) == ([], reason)
+
+
+@pytest.mark.parametrize(
+    "question,unit",
+    [
+        ("What equatorial radius of Probe in km is documented?", "km"),
+        ("¿Qué radio ecuatorial de Probe en km consta?", "km"),
+        ("What maximum temperature of Probe in C is documented?", "C"),
+        ("¿Qué temperatura máxima de Probe en C consta?", "C"),
+    ],
+)
+def test_unsupported_measurements_abstain_before_generation(grounded, question, unit):
+    runtime = importlib.import_module("runtime")
+    calls = []
+
+    def transport(url, payload, **kwargs):
+        calls.append(payload)
+        assert len(calls) == 1, "Unsupported measurements must not invoke generation"
+        return {
+            "documents": [[planetary_context()["text"]]],
+            "metadatas": [[{"name": "rns-nasa-probe--" + "a" * 64 + ".txt"}]],
+        }
+
+    result = runtime.answer_question(
+        question, unit, "session", {"probe": "file"}, "local", call=transport
+    )
+    assert result["status"] == "ABSTAINED"
+    assert result["answer_origin"] == "policy_abstention"
+    assert result["abstention_reason"] == "NO_EVIDENCE_FOR_MEASUREMENT"
+    assert result["generation_request"] is None and len(calls) == 1
+    assert result["measurement_request"]["kinds"]
+    assert result["structured_answer"] == grounded.NULL_ANSWER
+
+
+def test_unqualified_measurement_with_multiple_source_statistics_requires_clarification(grounded):
+    context = planetary_context()
+    context["text"] += "\nMetric ID: high; Maximum temperature: 44 C.\n"
+    facts, reason = grounded.eligible_facts(
+        "What temperature of Probe in C is documented?", "C", [context]
+    )
+    assert not facts and reason == "AMBIGUOUS_MEASUREMENT"

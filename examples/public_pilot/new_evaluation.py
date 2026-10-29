@@ -4,12 +4,14 @@ This is an engineering evaluation authored alongside the implementation, not ind
 human acceptance. Golden fields are used only by offline scoring, never sent to the chat.
 """
 
+import argparse
 import hashlib
 import json
 import re
 import uuid
 from collections import Counter
 from datetime import UTC, datetime
+from pathlib import Path
 
 from corpus import LimitsParser
 from evaluate import validate_answer
@@ -120,6 +122,10 @@ def score(case: dict, receipt: dict | None, response: dict, versions: dict, code
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--questions", type=Path, default=HERE / "new_questions.json")
+    args = parser.parse_args()
+    specifications_path = args.questions.resolve()
     versions = json.loads((HERE / "versions.json").read_text())
     code = hashes()
     if code != json.loads((ROOT / "ui-install.json").read_text())["code_sha256"]:
@@ -127,7 +133,7 @@ def main() -> None:
     actual = {m["name"]: m["digest"] for m in request(MODEL_URL + "/api/tags")["models"]}
     if any(actual.get(k) != v for k, v in versions["model_digests"].items()):
         raise ValueError("Installed model digest mismatch")
-    specs = json.loads((HERE / "new_questions.json").read_text())
+    specs = json.loads(specifications_path.read_text())
     cases = reference_cases(specs, versions, ROOT / "corpus")
     run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ") + "-" + uuid.uuid4().hex[:8]
     directory = ROOT / "evaluations" / run_id
@@ -139,15 +145,15 @@ def main() -> None:
         "cases": cases,
         "channel": "native Open WebUI HTTP API",
         "independent_human_review": False,
-        "specification_sha256": hashlib.sha256(
-            (HERE / "new_questions.json").read_bytes()
-        ).hexdigest(),
+        "specification_sha256": hashlib.sha256(specifications_path.read_bytes()).hexdigest(),
+        "specification_name": specifications_path.name,
     }
     private_write(directory / "frozen.json", json.dumps(frozen, indent=2))
     seal = hashlib.sha256((directory / "frozen.json").read_bytes()).hexdigest()
     private_write(directory / "frozen.sha256", seal + "\n")
-    for name in (*RUNTIME_FILES, "new_evaluation.py", "new_questions.json"):
+    for name in (*RUNTIME_FILES, "new_evaluation.py"):
         private_write(directory / "code" / name, (HERE / name).read_text())
+    private_write(directory / "code" / "questions.json", specifications_path.read_text())
     token = authenticate()
     responses = []
     print(f"Evaluation: {run_id} (frozen before the first question)", flush=True)
@@ -155,7 +161,7 @@ def main() -> None:
         if hashes() != code:
             raise ValueError("Runtime source changed during evaluation")
         message_id = str(uuid.uuid4())
-        # This is the entire generation input: no unit, references, expected state or IDs.
+        # Only user text and transport identifiers are sent, never reference fields.
         payload = {
             "model": "ragparity_grounded",
             "stream": False,

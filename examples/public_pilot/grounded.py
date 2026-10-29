@@ -102,6 +102,88 @@ def extract_facts(contexts: list[dict]) -> list[Fact]:
     return facts
 
 
+# Quantity vocabulary describes source labels and requested semantics, never document
+# identifiers or numeric answers. Unknown planetary measures fail closed.
+QUANTITIES = {
+    "diameter": r"\bdiameter\b",
+    "radius": r"\bradius\b",
+    "circumference": r"\bcircumference\b",
+    "temperature": r"\btemperatures?\b",
+    "rotation": r"\brotation\b|\bsidereal\s+day\b",
+    "solar-day": r"\bsolar\s+day\b|\b(?:length|duration)\s+of\s+(?:the\s+)?day\b|\bday\s+length\b",
+    "orbit": r"\borbital\b|\borbit\b",
+}
+QUALIFIERS = {
+    "mean": r"\b(?:mean|average)\b",
+    "maximum": r"\b(?:maximum|max|highest|peak|hottest)\b",
+    "minimum": r"\b(?:minimum|min|lowest|coldest)\b",
+    "median": r"\bmedian\b",
+    "range": r"\brange\b",
+    "sidereal": r"\bsidereal\b|\b(?:relative to|with respect to)\s+(?:the\s+)?fixed stars\b",
+    "solar": r"\bsolar\b",
+    "tropical": r"\btropical\b",
+    "equatorial": r"\bequatorial\b",
+}
+EXCLUSION = re.compile(
+    r"\b(?:rather than|instead of|as distinct from|and not|and no|not including|not|no)\b",
+    re.IGNORECASE,
+)
+DERIVATION = re.compile(
+    r"\b(?:half|double|twice|calculate|calculated|compute|computed|sum|ratio|difference|"
+    r"convert|conversion)\b|\bdivided by\b",
+    re.IGNORECASE,
+)
+
+
+def measurement_request(question: str) -> dict:
+    """Record a bounded measurement contract without reading any benchmark references."""
+    _, normalized = normalize_question(question)
+    positive = EXCLUSION.split(normalized, maxsplit=1)[0]
+    kinds = sorted(
+        kind for kind, pattern in QUANTITIES.items() if re.search(pattern, positive, re.IGNORECASE)
+    )
+    qualifiers = sorted(
+        qualifier
+        for qualifier, pattern in QUALIFIERS.items()
+        if re.search(pattern, positive, re.IGNORECASE)
+    )
+    return {
+        "policy_version": 1,
+        "kinds": kinds,
+        "qualifiers": qualifiers,
+        "excluded_clause": positive != normalized,
+        "derived": bool(DERIVATION.search(positive)),
+    }
+
+
+def measurement_evidence(question: str, facts: list[Fact]) -> tuple[list[Fact], str | None]:
+    # The other fixed adapter's Upper limit field supplies PostgreSQL bound semantics;
+    # its labels are selected by the existing model path. This gate is for planetary rows.
+    if not any(fact.document_id.startswith("nasa-") for fact in facts):
+        return facts, None
+    request = measurement_request(question)
+    if request["derived"]:
+        return [], "DERIVED_MEASUREMENT_UNSUPPORTED"
+    if len(request["kinds"]) > 1:
+        return [], "AMBIGUOUS_MEASUREMENT"
+    if not request["kinds"]:
+        return [], "MEASUREMENT_UNSPECIFIED"
+    matches = []
+    signatures = set()
+    for fact in facts:
+        source = measurement_request(fact.label)
+        if source["kinds"] == request["kinds"] and set(request["qualifiers"]) <= set(
+            source["qualifiers"]
+        ):
+            matches.append(fact)
+            signatures.add((tuple(source["kinds"]), tuple(source["qualifiers"])))
+    if not matches:
+        return [], "NO_EVIDENCE_FOR_MEASUREMENT"
+    if len(signatures) != 1:
+        return [], "AMBIGUOUS_MEASUREMENT"
+    return matches, None
+
+
 def eligible_facts(question: str, unit: str, contexts: list[dict]) -> tuple[list[Fact], str | None]:
     """Conservative scope contract for these static source adapters, independent of goldens."""
     dated_spanish = re.search(
@@ -150,7 +232,7 @@ def eligible_facts(question: str, unit: str, contexts: list[dict]) -> tuple[list
     )
     if len(subjects) != 1 or coordinated_subject:
         return [], "AMBIGUOUS_SUBJECT"
-    return [fact for fact in facts if fact.subject in subjects], None
+    return measurement_evidence(question, [fact for fact in facts if fact.subject in subjects])
 
 
 def selection_payload(question: str, unit: str, facts: list[Fact], model: str) -> dict:

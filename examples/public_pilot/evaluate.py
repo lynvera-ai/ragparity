@@ -177,7 +177,7 @@ def main() -> None:
     directory = ROOT / "runs" / run_id
     outcomes = []
     provenance = {
-        "harness_version": 6,
+        "harness_version": 7,
         "question_language": args.language,
         "answer_mode": "evidence_selection",
         "started_at": datetime.now(UTC).isoformat(),

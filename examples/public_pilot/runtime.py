@@ -5,7 +5,13 @@ import re
 from dataclasses import asdict
 from urllib.error import HTTPError
 
-from grounded import NULL_ANSWER, eligible_facts, selected_answer, selection_payload
+from grounded import (
+    NULL_ANSWER,
+    eligible_facts,
+    measurement_request,
+    selected_answer,
+    selection_payload,
+)
 from language import normalize_question
 from pydantic import ValidationError
 from transport import APP_URL, request
@@ -77,6 +83,7 @@ def answer_question(
     result = {
         "question_language": language,
         "normalized_question": normalized,
+        "measurement_request": measurement_request(question_text),
         "retrieved_documents": identities,
         "retrieved_evidence": evidence,
         "generation_request": payload,

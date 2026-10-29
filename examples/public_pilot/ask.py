@@ -37,7 +37,7 @@ def main() -> None:
     record = {
         "question": args.question,
         "unit": args.unit,
-        "harness_version": 6,
+        "harness_version": 7,
         "versions": versions,
         "result": result,
         "code_sha256": {
