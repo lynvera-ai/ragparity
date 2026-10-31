@@ -4,6 +4,8 @@ RAGParity compara los metadatos de una fuente con los de un índice RAG y valida
 afirmaciones numéricas estructuradas. La beta incluye una biblioteca Python y una
 herramienta de consola. Los chats son ejemplos experimentales.
 
+Visita la [página oficial de RAGParity](https://ragparity.lynvera.ai).
+
 El ejemplo inicial utiliza datos inventados. Necesita Python 3.12 o posterior e internet
 para instalar dependencias gratuitas. Después funciona localmente sin modelos, base de
 datos, cuenta ni suscripción. Las guías de referencia completas están en inglés.
