@@ -4,6 +4,8 @@ RAGParity validates consistency between source and index metadata and checks str
 numeric evidence. Version 0.2.0b1 is a beta for the CLI and library. Start with the local
 example, then connect the metadata projection for your application.
 
+Visit the [official RAGParity website](https://ragparity.lynvera.ai).
+
 ## Start here
 
 | Goal | Guide |
