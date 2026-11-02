@@ -15,7 +15,7 @@ classifiers = ["Development Status :: 4 - Beta", "Programming Language :: Python
 
 [project.optional-dependencies]
 postgres = ["psycopg[binary]>=3.3.6,<4"]
-dev = ["pytest>=8.3,<10", "pytest-cov>=6,<8", "ruff>=0.11,<1", "mypy>=1.15,<2", "build>=1.2,<2", "pip-audit>=2.8,<3"]
+dev = ["pytest>=8.3,<10", "pytest-cov>=6,<8", "ruff>=0.11,<1", "mypy>=1.15,<3", "build>=1.2,<2", "pip-audit>=2.8,<3"]
 
 [project.scripts]
 ragparity = "lynvera_ragparity.cli:app"
