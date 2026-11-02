@@ -153,6 +153,6 @@ Reports may contain sensitive identifiers and evidence. Keep them private or use
 `--redact` before sharing. Read [SECURITY.md](SECURITY.md),
 [the code of conduct](CODE_OF_CONDUCT.md), [LICENSE](LICENSE) and [NOTICE](NOTICE).
 
-Created and maintained by **Dr. Felipe Castillo Rendón**, Lynvera.
+Created and maintained by **Ph.D. Felipe Castillo Rendón**, Lynvera.
 [lynvera.ai](https://lynvera.ai)
 felipe.castillo@lynvera.ai
